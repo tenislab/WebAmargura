@@ -49,7 +49,7 @@
         </div>
       </div>
       <div style="flex:1;"></div>
-      <div style="display:flex; align-items:center; gap:22px; font-size:13px; letter-spacing:0.4px; text-transform:uppercase; color:#4a4038; font-weight:600;">
+      <div style="display:{{ navRowDisplay }}; align-items:center; gap:22px; font-size:13px; letter-spacing:0.4px; text-transform:uppercase; color:#4a4038; font-weight:600;">
         <span onClick="{{ goInicio }}" style="cursor:pointer;">Inicio</span>
         <div style="position:relative;">
           <span onClick="{{ toggleMenu }}" style="cursor:pointer; display:inline-flex; align-items:center; gap:5px;">La Hermandad <span style="font-size:9px;">▼</span></span>
@@ -65,15 +65,34 @@
         <span onClick="{{ goBoletines }}" style="cursor:pointer;">Boletines</span>
         <span onClick="{{ goContacto }}" style="cursor:pointer;">Contacto</span>
       </div>
-      <a href="portal-hermano.html" style="display:inline-block; padding:9px 16px; border:1px solid var(--granate,#6E1423); color:var(--granate,#6E1423); font-size:11px; letter-spacing:1px; text-transform:uppercase; font-weight:700;" style-hover="background:var(--granate,#6E1423); color:#F0E6D6;">Portal del Hermano</a>
+      <a href="portal-hermano.html" style="display:{{ portalBtnDisplay }}; padding:9px 16px; border:1px solid var(--granate,#6E1423); color:var(--granate,#6E1423); font-size:11px; letter-spacing:1px; text-transform:uppercase; font-weight:700;" style-hover="background:var(--granate,#6E1423); color:#F0E6D6;">Portal del Hermano</a>
+      <div onClick="{{ toggleMobileMenu }}" style="display:{{ hamburgerDisplay }}; align-items:center; justify-content:center; flex-direction:column; gap:4px; width:38px; height:38px; cursor:pointer; flex-shrink:0;">
+        <span style="width:22px; height:2px; background:#4a4038;"></span>
+        <span style="width:22px; height:2px; background:#4a4038;"></span>
+        <span style="width:22px; height:2px; background:#4a4038;"></span>
+      </div>
     </div>
+    <sc-if value="{{ showMobileMenu }}" hint-placeholder-val="{{ false }}">
+      <div style="border-top:1px solid rgba(33,27,22,0.12); background:#FBF8F1; padding:6px 0 16px; max-height:calc(100vh - 64px); overflow-y:auto;">
+        <span onClick="{{ goInicio }}" style="display:block; padding:12px 24px; font-size:13px; letter-spacing:0.4px; text-transform:uppercase; font-weight:600; color:#4a4038; cursor:pointer;">Inicio</span>
+        <sc-for list="{{ navHermandad }}" as="it" hint-placeholder-count="8">
+          <div onClick="{{ it.onClick }}" style="padding:12px 24px; font-size:13px; letter-spacing:0.4px; text-transform:uppercase; font-weight:600; color:#4a4038; cursor:pointer;">{{ it.label }}</div>
+        </sc-for>
+        <span onClick="{{ goActualidad }}" style="display:block; padding:12px 24px; font-size:13px; letter-spacing:0.4px; text-transform:uppercase; font-weight:600; color:#4a4038; cursor:pointer;">Actualidad</span>
+        <span onClick="{{ goBoletines }}" style="display:block; padding:12px 24px; font-size:13px; letter-spacing:0.4px; text-transform:uppercase; font-weight:600; color:#4a4038; cursor:pointer;">Boletines</span>
+        <span onClick="{{ goContacto }}" style="display:block; padding:12px 24px; font-size:13px; letter-spacing:0.4px; text-transform:uppercase; font-weight:600; color:#4a4038; cursor:pointer;">Contacto</span>
+        <div style="padding:14px 24px 0;">
+          <a href="portal-hermano.html" style="display:block; text-align:center; padding:12px; border:1px solid var(--granate,#6E1423); color:var(--granate,#6E1423); font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Portal del Hermano</a>
+        </div>
+      </div>
+    </sc-if>
   </div>
 
   <!-- ================= INICIO ================= -->
   <sc-if value="{{ isInicio }}" hint-placeholder-val="{{ true }}">
   <div>
     <!-- hero -->
-    <div style="position:relative; height:74vh; min-height:500px; background:#240d10; overflow:hidden;">
+    <div style="position:relative; height:{{ heroHeight }}; min-height:{{ heroMinHeight }}; background:#240d10; overflow:hidden;">
       <sc-for list="{{ heroLayers }}" as="h" hint-placeholder-count="5">
         <div style="position:absolute; inset:0; background:#240d10 center 22%/cover no-repeat; background-image:{{ h.bg }}; opacity:{{ h.op }}; transition:opacity 1.4s ease;"></div>
       </sc-for>
@@ -91,14 +110,14 @@
 
     <!-- welcome -->
     <div style="max-width:1160px; margin:0 auto; padding:74px 24px;">
-      <div style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:56px; align-items:center;">
+      <div style="display:grid; grid-template-columns:{{ g.welcome }}; gap:56px; align-items:center;">
         <div>
           <div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#A8843C); margin-bottom:16px;">Bienvenida</div>
           <h2 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:clamp(28px,3.6vw,42px); line-height:1.15; margin:0 0 22px; color:var(--granate,#6E1423);">Una hermandad de fe, penitencia y caridad</h2>
           <p style="font-family:'Cormorant Garamond',serif; font-size:20px; line-height:1.6; color:#3a332c; margin:0 0 14px;">Desde nuestra sede canónica, el Santuario de la Inmaculada Concepción, damos culto a nuestros Sagrados Titulares y trabajamos cada día en obras de caridad hacia los más necesitados.</p>
           <p style="font-size:15px; line-height:1.7; color:#6b625a; margin:0;">Corporación fundada el 15 de febrero de 1955, unida por la devoción al Santísimo Cristo de la Misericordia y a María Santísima de la Amargura, conocida popularmente como la «Hermandad de los Toreros».</p>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="display:grid; grid-template-columns:{{ g.titularImgs }}; gap:14px;">
           <div style="aspect-ratio:3/5; margin-top:34px; border:1px solid rgba(33,27,22,0.12); background:#2a1013 center/cover no-repeat; background-image:{{ cristoBg }};"></div>
           <div style="aspect-ratio:3/5; border:1px solid rgba(33,27,22,0.12); background:#2a1013 center/cover no-repeat; background-image:{{ virgenBg }};"></div>
         </div>
@@ -137,7 +156,7 @@
         <div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#A8843C); margin-bottom:10px;">Devoción</div>
         <h2 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:clamp(26px,3.4vw,40px); margin:0; color:var(--granate,#6E1423);">Nuestros Sagrados Titulares</h2>
       </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+      <div style="display:grid; grid-template-columns:{{ g.titularesPreview }}; gap:28px;">
         <div onClick="{{ goTitulares }}" style="cursor:pointer;">
           <div style="aspect-ratio:4/5; background:repeating-linear-gradient(45deg, #2a1013 0 14px, #240d10 14px 28px); display:flex; align-items:center; justify-content:center; font-family:monospace; font-size:12px; color:rgba(232,223,207,0.4);"><div style="width:100%;height:100%;background:#2a1013 center/cover no-repeat;background-image:{{ cristoBg }};"></div></div>
           <div style="text-align:center; padding:18px 0 0;">
@@ -165,7 +184,7 @@
           </div>
           <span onClick="{{ goActualidad }}" style="cursor:pointer; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--granate,#6E1423); font-weight:700;">Todas las noticias →</span>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+        <div style="display:grid; grid-template-columns:{{ g.repeat3 }}; gap:24px;">
           <sc-for list="{{ noticias }}" as="n" hint-placeholder-count="3">
             <div onClick="{{ goActualidad }}" style="cursor:pointer; background:#FBF8F1; border:1px solid rgba(33,27,22,0.1);">
               <div style="aspect-ratio:16/10; background:#2a1013 center/cover no-repeat; background-image:{{ n.imgBg }};"></div>
@@ -222,7 +241,7 @@
   <div>
     <div style="background:#5E121F; color:#F0E6D6;"><div style="max-width:920px; margin:0 auto; padding:48px 24px;"><div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#C9A25A); margin-bottom:10px;">La Hermandad</div><h1 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); margin:0; letter-spacing:1px;">Sagrados Titulares</h1></div></div>
     <div style="max-width:960px; margin:0 auto; padding:56px 24px;">
-      <div style="display:grid; grid-template-columns:0.9fr 1.1fr; gap:40px; align-items:start; margin-bottom:60px;">
+      <div style="display:grid; grid-template-columns:{{ g.historia1 }}; gap:40px; align-items:start; margin-bottom:60px;">
         <div style="aspect-ratio:4/5; background:repeating-linear-gradient(45deg, #2a1013 0 14px, #240d10 14px 28px); display:flex; align-items:center; justify-content:center; font-family:monospace; font-size:12px; color:rgba(232,223,207,0.4); position:sticky; top:100px;"><div style="width:100%;height:100%;background:#2a1013 center/cover no-repeat;background-image:{{ cristoBg }};"></div></div>
         <div>
           <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:24px; letter-spacing:1px; color:var(--granate,#6E1423); margin:0 0 18px;">Santísimo Cristo de la Misericordia</h2>
@@ -232,7 +251,7 @@
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns:1.1fr 0.9fr; gap:40px; align-items:start; margin-bottom:60px;">
+      <div style="display:grid; grid-template-columns:{{ g.historia2 }}; gap:40px; align-items:start; margin-bottom:60px;">
         <div>
           <h2 style="font-family:'Cinzel',serif; font-weight:600; font-size:24px; letter-spacing:1px; color:var(--granate,#6E1423); margin:0 0 18px;">María Santísima de la Amargura</h2>
           <p style="font-family:'Cormorant Garamond',serif; font-size:18px; line-height:1.7; color:#312a24; margin:0 0 14px;">En 1956 la Junta de Gobierno encargó la talla al prestigioso imaginero sevillano D. Manuel Pineda Calderón. Sobre madera de ciprés de Flandes, el maestro logró conjugar en el rostro de Nuestra Señora el sufrimiento y la ternura, el dolor y la belleza. Su semblante conmovió tanto al autor que llegó a ofrecer tallar otra imagen para quedarse con esta.</p>
@@ -258,7 +277,7 @@
       <p style="font-family:'Cormorant Garamond',serif; font-size:19px; line-height:1.72; color:#312a24; margin:0 0 14px;">El viernes 30 de junio de 2023, los hermanos eligieron en las urnas la candidatura presentada en cabildo de elecciones, resultando elegido Hermano Mayor Don Francisco Javier Peinado Bueno. El 3 de julio de 2023, el delegado episcopal de Hermandades y Cofradías de Cádiz dispuso el nombramiento de la nueva Junta de Gobierno.</p>
       <p style="font-size:14px; color:#6b625a; margin:0 0 26px;">Mandato de 4 años, hasta el 30 de junio de 2027.</p>
       <div style="aspect-ratio:16/9; margin-bottom:32px; background:repeating-linear-gradient(45deg, rgba(33,27,22,0.06) 0 12px, rgba(33,27,22,0.02) 12px 24px); border:1px solid rgba(33,27,22,0.12); display:flex; align-items:center; justify-content:center; font-family:monospace; font-size:12px; color:#9a8f80;"><img src="https://hermandadamargura.es/images/1024/16997712/0694d45a-540d-47ce-b14d-1160f495349d-6lNBMDaS5u60cc2w3hQHlg.JPG" alt="Junta de Gobierno" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 40px;">
+      <div style="display:grid; grid-template-columns:{{ g.junta }}; gap:0 40px;">
         <sc-for list="{{ junta }}" as="m" hint-placeholder-count="8">
           <div style="padding:16px 0; border-top:1px solid rgba(33,27,22,0.14); display:flex; align-items:baseline; gap:12px;">
             <span style="color:var(--oro,#A8843C); font-family:'Cinzel',serif;">·</span>
@@ -370,7 +389,7 @@
     <div style="background:#5E121F; color:#F0E6D6;"><div style="max-width:920px; margin:0 auto; padding:48px 24px;"><div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#C9A25A); margin-bottom:10px;">Publicaciones</div><h1 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); margin:0; letter-spacing:1px;">Boletines</h1></div></div>
     <div style="max-width:820px; margin:0 auto; padding:56px 24px;">
       <p style="font-family:'Cormorant Garamond',serif; font-size:19px; line-height:1.7; color:#312a24; margin:0 0 30px;">Descarga aquí los boletines informativos de la Hermandad, con la memoria de cultos, actos y vida de hermandad de cada temporada.</p>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <div style="display:grid; grid-template-columns:{{ g.boletines }}; gap:20px;">
         <sc-for list="{{ boletines }}" as="b" hint-placeholder-count="4">
           <div style="display:flex; gap:16px; align-items:center; padding:20px; border:1px solid rgba(33,27,22,0.14); background:#FBF8F1;">
             <div style="width:52px; height:66px; flex-shrink:0; background:repeating-linear-gradient(45deg, rgba(33,27,22,0.08) 0 8px, rgba(33,27,22,0.03) 8px 16px); border:1px solid rgba(33,27,22,0.15);"></div>
@@ -398,7 +417,7 @@
       </sc-if>
       <sc-if value="{{ hermanoForm }}" hint-placeholder-val="{{ true }}">
       <form onSubmit="{{ submitHermano }}">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:{{ g.form2col }}; gap:16px; margin-bottom:16px;">
           <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Nombre</div><input required style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.22); background:#fff; font-size:14px;"></div>
           <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Apellidos</div><input required style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.22); background:#fff; font-size:14px;"></div>
           <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Correo electrónico</div><input required type="email" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.22); background:#fff; font-size:14px;"></div>
@@ -419,7 +438,7 @@
   <div>
     <div style="background:#5E121F; color:#F0E6D6;"><div style="max-width:1000px; margin:0 auto; padding:48px 24px;"><div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#C9A25A); margin-bottom:10px;">Escríbenos</div><h1 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); margin:0; letter-spacing:1px;">Contacto</h1></div></div>
     <div style="max-width:1000px; margin:0 auto; padding:56px 24px;">
-      <div style="display:grid; grid-template-columns:0.85fr 1.15fr; gap:48px;">
+      <div style="display:grid; grid-template-columns:{{ g.contactoInfo }}; gap:48px;">
         <div>
           <h3 style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:24px; color:var(--granate,#6E1423); margin:0 0 18px;">Casa Hermandad</h3>
           <p style="font-size:15px; line-height:1.8; color:#3a332c; margin:0 0 20px;">Calle Isabel la Católica, 34<br>La Línea de la Concepción<br>11300 · Cádiz</p>
@@ -440,7 +459,7 @@
           <sc-if value="{{ contactoForm }}" hint-placeholder-val="{{ true }}">
           <form onSubmit="{{ submitContacto }}">
             <div style="margin-bottom:16px;"><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Nombre completo</div><input required style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.22); background:#fff; font-size:14px;"></div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div style="display:grid; grid-template-columns:{{ g.form2col }}; gap:16px; margin-bottom:16px;">
               <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Correo</div><input required type="email" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.22); background:#fff; font-size:14px;"></div>
               <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Asunto</div><input style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.22); background:#fff; font-size:14px;"></div>
             </div>
@@ -451,132 +470,6 @@
           </sc-if>
         </div>
       </div>
-    </div>
-  </div>
-  </sc-if>
-
-  <!-- ================= PORTAL (MAQUETA) ================= -->
-  <sc-if value="{{ isPortal }}" hint-placeholder-val="{{ false }}">
-  <div style="background:#EFE7D7;">
-    <div style="max-width:1000px; margin:0 auto; padding:64px 24px; min-height:60vh;">
-      <div style="display:grid; grid-template-columns:1fr 0.9fr; gap:48px; align-items:center;">
-        <div>
-          <div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#A8843C); margin-bottom:14px;">Zona privada</div>
-          <h1 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:clamp(30px,4vw,46px); line-height:1.1; margin:0 0 18px; color:var(--granate,#6E1423);">Portal del Hermano</h1>
-          <p style="font-family:'Cormorant Garamond',serif; font-size:19px; line-height:1.6; color:#3a332c; margin:0 0 22px;">Un espacio privado para cada hermano: consulta de cuotas, pago de recibos, papeleta de sitio y actualización de datos.</p>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px 24px;">
-            <sc-for list="{{ features }}" as="f" hint-placeholder-count="4">
-              <div style="display:flex; align-items:baseline; gap:10px; font-size:14px; color:#4a4038;"><span style="color:var(--oro,#A8843C); font-family:'Cinzel',serif;">·</span>{{ f }}</div>
-            </sc-for>
-          </div>
-          <div style="margin-top:24px; padding:14px 18px; background:#FBF8F1; border-left:3px solid var(--oro,#A8843C); font-size:13px; color:#6b625a;">El acceso completo se conectará a <strong>Supabase</strong> en la próxima fase. Mientras tanto, entra con el acceso de demostración.</div>
-        </div>
-        <div style="background:#FBF8F1; padding:36px; border-top:3px solid var(--oro,#A8843C); box-shadow:0 20px 50px rgba(33,27,22,0.12);">
-          <div style="text-align:center; margin-bottom:24px;">
-            <img src="https://hermandadamargura.es/images/434/16915422/Logo_Amargura-removebg-preview-NoRkZKT-R2FuU_xwnzr-7g.png" alt="Escudo de la Hermandad" style="width:54px; height:54px; object-fit:contain; display:block; margin:0 auto 14px;">
-            <div style="font-family:'Cinzel',serif; font-size:15px; letter-spacing:1px; color:var(--granate,#6E1423);">ACCESO HERMANOS</div>
-          </div>
-          <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Nº de hermano o correo</div>
-          <input style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; margin-bottom:16px; font-size:14px;">
-          <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Contraseña</div>
-          <input type="password" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; margin-bottom:20px; font-size:14px;">
-          <a href="portal-hermano.html" style="display:block; cursor:pointer; text-align:center; padding:13px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700;">Entrar</a>
-          <div style="display:flex; align-items:center; gap:12px; margin:20px 0 16px;"><div style="flex:1; height:1px; background:rgba(33,27,22,0.14);"></div><span style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80;">Demostración</span><div style="flex:1; height:1px; background:rgba(33,27,22,0.14);"></div></div>
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            <a href="portal-hermano.html?modo=hermano" style="display:block; cursor:pointer; text-align:center; padding:12px; border:1px solid var(--granate,#6E1423); color:var(--granate,#6E1423); font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Entrar como Hermano</a>
-            <a href="portal-hermano.html?modo=admin" style="display:block; cursor:pointer; text-align:center; padding:12px; border:1px solid rgba(33,27,22,0.3); color:#4a4038; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Entrar como Administrador</a>
-          </div>
-          <div style="text-align:center; margin-top:16px; font-size:12px; color:#8a7d6e;">He olvidado mi contraseña</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </sc-if>
-
-  <!-- ================= ADMIN (MAQUETA FUNCIONAL) ================= -->
-  <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
-  <div style="background:#EFE7D7; min-height:72vh;">
-    <div style="max-width:1040px; margin:0 auto; padding:48px 24px;">
-      <div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#A8843C); margin-bottom:8px;">Secretaría · gestor de contenido</div>
-      <h1 style="font-family:'Cormorant Garamond',serif; font-weight:500; font-size:clamp(28px,3.6vw,40px); color:var(--granate,#6E1423); margin:0 0 6px;">Panel de Administración</h1>
-      <p style="font-size:14px; color:#6b625a; margin:0 0 26px; max-width:660px;">Cambia las fotos y los textos: los cambios aparecen al instante en la web. En producción, todo esto se guardará en Supabase y solo la secretaría tendrá acceso.</p>
-
-      <div style="display:flex; gap:4px; border-bottom:1px solid rgba(33,27,22,0.16); margin-bottom:28px; flex-wrap:wrap;">
-        <div onClick="{{ setTabPortada }}" style="cursor:pointer; padding:11px 18px; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700; color:{{ tabColPortada }}; border-bottom:{{ tabBarPortada }};">Portada</div>
-        <div onClick="{{ setTabTitulares }}" style="cursor:pointer; padding:11px 18px; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700; color:{{ tabColTitulares }}; border-bottom:{{ tabBarTitulares }};">Titulares</div>
-        <div onClick="{{ setTabActualidad }}" style="cursor:pointer; padding:11px 18px; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700; color:{{ tabColActualidad }}; border-bottom:{{ tabBarActualidad }};">Actualidad</div>
-        <div onClick="{{ setTabCultos }}" style="cursor:pointer; padding:11px 18px; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700; color:{{ tabColCultos }}; border-bottom:{{ tabBarCultos }};">Cultos</div>
-      </div>
-
-      <sc-if value="{{ tabPortada }}" hint-placeholder-val="{{ true }}">
-        <div style="font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--granate,#6E1423); margin-bottom:6px;">Fotos rotativas de portada</div>
-        <p style="font-size:13px; color:#6b625a; margin:0 0 18px;">Se muestran en el carrusel de la página de inicio. Sube una imagen para reemplazar cada una.</p>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
-          <sc-for list="{{ adminHero }}" as="h" hint-placeholder-count="5">
-            <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); padding:10px;">
-              <div style="aspect-ratio:16/10; background:#2a1013 center/cover no-repeat; background-image:{{ h.bg }};"></div>
-              <label style="display:block; text-align:center; margin-top:10px; padding:9px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:11px; letter-spacing:1px; text-transform:uppercase; font-weight:700; cursor:pointer;">Cambiar foto<input type="file" accept="image/*" onChange="{{ h.onFile }}" style="display:none;"></label>
-            </div>
-          </sc-for>
-        </div>
-      </sc-if>
-
-      <sc-if value="{{ tabTitulares }}" hint-placeholder-val="{{ false }}">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-          <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); padding:12px;">
-            <div style="font-family:'Cinzel',serif; font-size:13px; letter-spacing:1px; color:var(--granate,#6E1423); margin-bottom:10px;">STMO. CRISTO DE LA MISERICORDIA</div>
-            <div style="aspect-ratio:4/5; background:#2a1013 center/cover no-repeat; background-image:{{ adminCristoBg }};"></div>
-            <label style="display:block; text-align:center; margin-top:10px; padding:9px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:11px; letter-spacing:1px; text-transform:uppercase; font-weight:700; cursor:pointer;">Cambiar foto<input type="file" accept="image/*" onChange="{{ adminCristoFile }}" style="display:none;"></label>
-          </div>
-          <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); padding:12px;">
-            <div style="font-family:'Cinzel',serif; font-size:13px; letter-spacing:1px; color:var(--granate,#6E1423); margin-bottom:10px;">Mª STMA. DE LA AMARGURA</div>
-            <div style="aspect-ratio:4/5; background:#2a1013 center/cover no-repeat; background-image:{{ adminVirgenBg }};"></div>
-            <label style="display:block; text-align:center; margin-top:10px; padding:9px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:11px; letter-spacing:1px; text-transform:uppercase; font-weight:700; cursor:pointer;">Cambiar foto<input type="file" accept="image/*" onChange="{{ adminVirgenFile }}" style="display:none;"></label>
-          </div>
-        </div>
-      </sc-if>
-
-      <sc-if value="{{ tabActualidad }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-          <div style="font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--granate,#6E1423);">Noticias</div>
-          <div onClick="{{ addNews }}" style="cursor:pointer; padding:10px 18px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:11px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">+ Añadir noticia</div>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:14px;">
-          <sc-for list="{{ adminNews }}" as="n" hint-placeholder-count="3">
-            <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); padding:14px; display:grid; grid-template-columns:150px 1fr 90px; gap:16px; align-items:start;">
-              <div>
-                <div style="aspect-ratio:16/11; background:#e6ddcc center/cover no-repeat; background-image:{{ n.imgBg }};"></div>
-                <label style="display:block; text-align:center; margin-top:8px; padding:7px; border:1px solid var(--granate,#6E1423); color:var(--granate,#6E1423); font-size:10px; letter-spacing:1px; text-transform:uppercase; font-weight:700; cursor:pointer;">Cambiar<input type="file" accept="image/*" onChange="{{ n.onFile }}" style="display:none;"></label>
-              </div>
-              <div style="display:flex; flex-direction:column; gap:8px;">
-                <input value="{{ n.titulo }}" onChange="{{ n.onTitulo }}" placeholder="Título" style="width:100%; height:38px; padding:0 10px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; font-weight:600;">
-                <input value="{{ n.fecha }}" onChange="{{ n.onFecha }}" placeholder="Fecha" style="width:100%; height:34px; padding:0 10px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:12px;">
-                <textarea value="{{ n.extracto }}" onChange="{{ n.onExtracto }}" rows="3" placeholder="Texto" style="width:100%; padding:8px 10px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:13px; resize:vertical;"></textarea>
-              </div>
-              <div onClick="{{ n.onDelete }}" style="cursor:pointer; text-align:center; padding:8px; color:#a1303f; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700;">Eliminar</div>
-            </div>
-          </sc-for>
-        </div>
-      </sc-if>
-
-      <sc-if value="{{ tabCultos }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-          <div style="font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--granate,#6E1423);">Cultos y actos</div>
-          <div onClick="{{ addCulto }}" style="cursor:pointer; padding:10px 18px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:11px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">+ Añadir culto</div>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:12px;">
-          <sc-for list="{{ adminCultos }}" as="x" hint-placeholder-count="4">
-            <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); padding:14px; display:grid; grid-template-columns:66px 110px 1fr 1.4fr 74px; gap:12px; align-items:center;">
-              <input value="{{ x.dia }}" onChange="{{ x.onDia }}" placeholder="Día" style="height:38px; padding:0 8px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; text-align:center;">
-              <input value="{{ x.mes }}" onChange="{{ x.onMes }}" placeholder="Mes" style="height:38px; padding:0 8px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px;">
-              <input value="{{ x.titulo }}" onChange="{{ x.onTitulo }}" placeholder="Título" style="height:38px; padding:0 10px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; font-weight:600;">
-              <input value="{{ x.detalle }}" onChange="{{ x.onDetalle }}" placeholder="Detalle" style="height:38px; padding:0 10px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:13px;">
-              <div onClick="{{ x.onDelete }}" style="cursor:pointer; text-align:center; padding:8px; color:#a1303f; font-size:11px; text-transform:uppercase; font-weight:700;">Borrar</div>
-            </div>
-          </sc-for>
-        </div>
-      </sc-if>
-
     </div>
   </div>
   </sc-if>
@@ -599,7 +492,7 @@
   </div>
 
   <sc-if value="{{ showFab }}" hint-placeholder-val="{{ true }}">
-  <div onClick="{{ goHazte }}" style="position:fixed; right:26px; bottom:26px; z-index:150; cursor:pointer; padding:16px 30px; border-radius:100px; background:linear-gradient(135deg, rgba(255,255,255,0.4), rgba(201,162,90,0.2)); backdrop-filter:blur(18px) saturate(180%); -webkit-backdrop-filter:blur(18px) saturate(180%); border:1px solid rgba(255,255,255,0.6); box-shadow:0 10px 34px rgba(20,6,8,0.35), inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -12px 18px -10px rgba(110,20,35,0.3); color:var(--granate,#6E1423); font-size:13px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700; animation:floatBob 3.6s ease-in-out infinite; transition:transform 0.25s ease, box-shadow 0.25s ease;" style-hover="transform:translateY(-4px) scale(1.03); box-shadow:0 16px 40px rgba(20,6,8,0.4), inset 0 1px 1px rgba(255,255,255,0.85), inset 0 -12px 18px -10px rgba(110,20,35,0.4);">✝ Hazte Hermano</div>
+  <div onClick="{{ goHazte }}" style="position:fixed; right:{{ fabRight }}; bottom:{{ fabBottom }}; z-index:150; cursor:pointer; padding:{{ fabPad }}; border-radius:100px; background:linear-gradient(135deg, rgba(255,255,255,0.4), rgba(201,162,90,0.2)); backdrop-filter:blur(18px) saturate(180%); -webkit-backdrop-filter:blur(18px) saturate(180%); border:1px solid rgba(255,255,255,0.6); box-shadow:0 10px 34px rgba(20,6,8,0.35), inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -12px 18px -10px rgba(110,20,35,0.3); color:var(--granate,#6E1423); font-size:{{ fabFont }}; letter-spacing:1.5px; text-transform:uppercase; font-weight:700; animation:floatBob 3.6s ease-in-out infinite; transition:transform 0.25s ease, box-shadow 0.25s ease;" style-hover="transform:translateY(-4px) scale(1.03); box-shadow:0 16px 40px rgba(20,6,8,0.4), inset 0 1px 1px rgba(255,255,255,0.85), inset 0 -12px 18px -10px rgba(110,20,35,0.4);">✝ Hazte Hermano</div>
   </sc-if>
 
 </div>
@@ -607,8 +500,8 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:860},&quot;granate&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#6E1423&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Color&quot;},&quot;oro&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#A8843C&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Color&quot;}}">
 class Component extends DCLogic {
   state = {
-    page:'inicio', menu:false, hermanoSent:false, contactoSent:false,
-    heroIndex:0, adminTab:'portada',
+    page:'inicio', menu:false, mobileMenu:false, hermanoSent:false, contactoSent:false,
+    heroIndex:0, isMobile:(typeof window!=='undefined' && window.innerWidth<760),
     hero: [
       'https://hermandadamargura.es/images/1200x630/20811590/Imagen031-JE_blfZGG-PeVbef1zBsMA.jpg',
       'https://hermandadamargura.es/images/1024/16917111/IMG-20160128-WA0001_Original-M4UCvUmwP9swcc0izOWZxg.JPG',
@@ -638,29 +531,23 @@ class Component extends DCLogic {
     this._heroTimer = setInterval(() => {
       this.setState(s => ({ heroIndex: (s.heroIndex + 1) % s.hero.length }));
     }, 5000);
+    this._onResize = () => this.setState({ isMobile: window.innerWidth < 760 });
+    window.addEventListener('resize', this._onResize);
   }
-  componentWillUnmount() { if (this._heroTimer) clearInterval(this._heroTimer); }
+  componentWillUnmount() {
+    if (this._heroTimer) clearInterval(this._heroTimer);
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
+  }
 
   nav(p) {
-    this.setState({ page:p, menu:false });
+    this.setState({ page:p, menu:false, mobileMenu:false });
     try { document.documentElement.scrollTop = 0; document.body.scrollTop = 0; } catch(e) {}
   }
 
-  fileUrl(e, cb) {
-    const f = e && e.target && e.target.files && e.target.files[0];
-    if (!f) return;
-    cb(URL.createObjectURL(f));
-  }
-  setHero(i, url) { this.setState(s => { const h = s.hero.slice(); h[i] = url; return { hero:h }; }); }
-  setNews(i, k, v) { this.setState(s => { const n = s.news.slice(); n[i] = { ...n[i], [k]:v }; return { news:n }; }); }
-  delNews(i) { this.setState(s => ({ news: s.news.filter((_,j)=>j!==i) })); }
-  addNews() { this.setState(s => ({ news:[{ fecha:'Nueva fecha', titulo:'Nueva noticia', extracto:'Escribe aquí el texto…', img:s.hero[0] }, ...s.news] })); }
-  setCulto(i, k, v) { this.setState(s => { const c = s.cultos.slice(); c[i] = { ...c[i], [k]:v }; return { cultos:c }; }); }
-  delCulto(i) { this.setState(s => ({ cultos: s.cultos.filter((_,j)=>j!==i) })); }
-  addCulto() { this.setState(s => ({ cultos:[...s.cultos, { dia:'00', mes:'Mes', titulo:'Nuevo culto', detalle:'Detalle…' }] })); }
-
   renderVals() {
     const p = this.state.page;
+    const isMobile = this.state.isMobile;
+    const cols = (mobile, desktop) => isMobile ? mobile : desktop;
     const mk = (label, key) => ({ label, key, onClick: () => this.nav(key) });
     return {
       granate: this.props.granate ?? '#6E1423',
@@ -668,14 +555,37 @@ class Component extends DCLogic {
       heroLayers: this.state.hero.map((u, i) => ({ bg:`url('${u}')`, op: i===this.state.heroIndex ? 1 : 0 })),
       cristoBg: `url('${this.state.cristo}')`,
       virgenBg: `url('${this.state.virgen}')`,
+      isMobile,
+      heroHeight: cols('58vh','74vh'),
+      heroMinHeight: cols('380px','500px'),
       menuOpen: this.state.menu,
       toggleMenu: () => this.setState(s => ({ menu: !s.menu })),
+      showMobileMenu: isMobile && this.state.mobileMenu,
+      toggleMobileMenu: () => this.setState(s => ({ mobileMenu: !s.mobileMenu })),
+      navRowDisplay: cols('none','flex'),
+      hamburgerDisplay: cols('flex','none'),
+      portalBtnDisplay: cols('none','inline-block'),
+      fabRight: cols('14px','26px'), fabBottom: cols('14px','26px'),
+      fabPad: cols('13px 22px','16px 30px'), fabFont: cols('11.5px','13px'),
+
+      g: {
+        welcome: cols('1fr','1.15fr 0.85fr'),
+        titularImgs: cols('1fr','1fr 1fr'),
+        titularesPreview: cols('1fr','1fr 1fr'),
+        repeat3: cols('1fr','repeat(3,1fr)'),
+        historia1: cols('1fr','0.9fr 1.1fr'),
+        historia2: cols('1fr','1.1fr 0.9fr'),
+        junta: cols('1fr','1fr 1fr'),
+        boletines: cols('1fr','1fr 1fr'),
+        form2col: cols('1fr','1fr 1fr'),
+        contactoInfo: cols('1fr','0.85fr 1.15fr'),
+      },
 
       isInicio: p==='inicio', isHistoria: p==='historia', isTitulares: p==='titulares',
       isJunta: p==='junta', isTemplo: p==='templo', isCasa: p==='casa', isHeraldica: p==='heraldica',
       isCaridad: p==='caridad', isGrupoJoven: p==='grupojoven', isActualidad: p==='actualidad',
-      isBoletines: p==='boletines', isHazte: p==='hazte', isContacto: p==='contacto', isPortal: p==='portal', isAdmin: p==='admin',
-      showFab: !(p==='hazte' || p==='admin' || p==='portal'),
+      isBoletines: p==='boletines', isHazte: p==='hazte', isContacto: p==='contacto',
+      showFab: p!=='hazte',
 
       goInicio: () => this.nav('inicio'),
       goHistoria: () => this.nav('historia'),
@@ -684,8 +594,6 @@ class Component extends DCLogic {
       goBoletines: () => this.nav('boletines'),
       goContacto: () => this.nav('contacto'),
       goHazte: () => this.nav('hazte'),
-      goPortal: () => this.nav('portal'),
-      goAdmin: () => this.nav('admin'),
 
       navHermandad: [
         mk('Titulares','titulares'), mk('Historia','historia'), mk('Secretaría','contacto'),
@@ -702,47 +610,6 @@ class Component extends DCLogic {
       cultos: this.state.cultos,
       noticias: this.state.news.map(n => ({ ...n, imgBg:`url('${n.img}')` })),
 
-      // ---- Panel de administración (en la propia web) ----
-      tabPortada: this.state.adminTab==='portada',
-      tabTitulares: this.state.adminTab==='titulares',
-      tabActualidad: this.state.adminTab==='actualidad',
-      tabCultos: this.state.adminTab==='cultos',
-      setTabPortada: () => this.setState({ adminTab:'portada' }),
-      setTabTitulares: () => this.setState({ adminTab:'titulares' }),
-      setTabActualidad: () => this.setState({ adminTab:'actualidad' }),
-      setTabCultos: () => this.setState({ adminTab:'cultos' }),
-      tabColPortada: this.state.adminTab==='portada' ? (this.props.granate ?? '#6E1423') : '#9a8f80',
-      tabColTitulares: this.state.adminTab==='titulares' ? (this.props.granate ?? '#6E1423') : '#9a8f80',
-      tabColActualidad: this.state.adminTab==='actualidad' ? (this.props.granate ?? '#6E1423') : '#9a8f80',
-      tabColCultos: this.state.adminTab==='cultos' ? (this.props.granate ?? '#6E1423') : '#9a8f80',
-      tabBarPortada: this.state.adminTab==='portada' ? `2px solid ${this.props.granate ?? '#6E1423'}` : '2px solid transparent',
-      tabBarTitulares: this.state.adminTab==='titulares' ? `2px solid ${this.props.granate ?? '#6E1423'}` : '2px solid transparent',
-      tabBarActualidad: this.state.adminTab==='actualidad' ? `2px solid ${this.props.granate ?? '#6E1423'}` : '2px solid transparent',
-      tabBarCultos: this.state.adminTab==='cultos' ? `2px solid ${this.props.granate ?? '#6E1423'}` : '2px solid transparent',
-
-      adminHero: this.state.hero.map((u, i) => ({ bg:`url('${u}')`, onFile:(e)=>this.fileUrl(e, (url)=>this.setHero(i, url)) })),
-      adminCristoBg: `url('${this.state.cristo}')`,
-      adminVirgenBg: `url('${this.state.virgen}')`,
-      adminCristoFile: (e) => this.fileUrl(e, (url)=>this.setState({ cristo:url })),
-      adminVirgenFile: (e) => this.fileUrl(e, (url)=>this.setState({ virgen:url })),
-      adminNews: this.state.news.map((n, i) => ({
-        titulo:n.titulo, fecha:n.fecha, extracto:n.extracto, imgBg:`url('${n.img}')`,
-        onFile:(e)=>this.fileUrl(e, (url)=>this.setNews(i,'img',url)),
-        onTitulo:(e)=>this.setNews(i,'titulo',e.target.value),
-        onFecha:(e)=>this.setNews(i,'fecha',e.target.value),
-        onExtracto:(e)=>this.setNews(i,'extracto',e.target.value),
-        onDelete:()=>this.delNews(i),
-      })),
-      addNews: () => this.addNews(),
-      adminCultos: this.state.cultos.map((c, i) => ({
-        dia:c.dia, mes:c.mes, titulo:c.titulo, detalle:c.detalle,
-        onDia:(e)=>this.setCulto(i,'dia',e.target.value),
-        onMes:(e)=>this.setCulto(i,'mes',e.target.value),
-        onTitulo:(e)=>this.setCulto(i,'titulo',e.target.value),
-        onDetalle:(e)=>this.setCulto(i,'detalle',e.target.value),
-        onDelete:()=>this.delCulto(i),
-      })),
-      addCulto: () => this.addCulto(),
       junta: [
         { nombre:'Don Francisco Javier Peinado Bueno', cargo:'Hermano Mayor' },
         { nombre:'Doña Gloria Díaz Jordán', cargo:'Junta de Gobierno' },
@@ -758,12 +625,6 @@ class Component extends DCLogic {
         { titulo:'Boletín 2024', meta:'Cuaresma · 20 páginas' },
         { titulo:'Boletín 2023', meta:'Cuaresma · 20 páginas' },
         { titulo:'Especial 70 aniversario', meta:'1955–2025' },
-      ],
-      features: [
-        'Consulta de cuotas e histórico',
-        'Pago de recibos pendientes',
-        'Papeleta de sitio',
-        'Actualización de datos y certificados',
       ],
     };
   }
