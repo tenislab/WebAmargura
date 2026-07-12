@@ -322,8 +322,8 @@
         <sc-if value="{{ cTabFotos }}" hint-placeholder-val="{{ true }}">
         <div>
           <div style="display:flex; align-items:start; justify-content:space-between; gap:16px; margin-bottom:16px;">
-            <p style="font-size:13.5px; color:#6b625a; margin:0; max-width:560px; line-height:1.5;">Se alternan de fondo en la cabecera de inicio. Arrástralas para reordenar, cámbialas o elimínalas.</p>
-            <div style="white-space:nowrap; padding:9px 16px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Añadir foto</div>
+            <p style="font-size:13.5px; color:#6b625a; margin:0; max-width:560px; line-height:1.5;">Se alternan de fondo en la cabecera de inicio. Cámbialas o elimínalas.</p>
+            <label style="white-space:nowrap; padding:9px 16px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Añadir foto<input type="file" accept="image/*" onChange="{{ addHeroFoto }}" style="display:none;"></label>
           </div>
           <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
             <sc-for list="{{ cHeroFotos }}" as="f" hint-placeholder-count="5">
@@ -333,8 +333,8 @@
                   <div style="position:absolute; top:8px; left:8px; width:24px; height:24px; border-radius:6px; background:rgba(42,8,16,0.8); color:#F0E6D6; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;">{{ f.n }}</div>
                 </div>
                 <div style="padding:11px 13px; display:flex; gap:8px;">
-                  <div style="flex:1; text-align:center; padding:8px; border-radius:6px; background:#EFE7D7; font-size:12px; font-weight:600; color:var(--granate,#6E1423); cursor:pointer;">Cambiar</div>
-                  <div style="width:38px; text-align:center; padding:8px; border-radius:6px; border:1px solid rgba(33,27,22,0.18); font-size:13px; cursor:pointer; color:#a33;">✕</div>
+                  <label style="flex:1; text-align:center; padding:8px; border-radius:6px; background:#EFE7D7; font-size:12px; font-weight:600; color:var(--granate,#6E1423); cursor:pointer;">Cambiar<input type="file" accept="image/*" onChange="{{ f.onChange }}" style="display:none;"></label>
+                  <div onClick="{{ f.onRemove }}" style="width:38px; text-align:center; padding:8px; border-radius:6px; border:1px solid rgba(33,27,22,0.18); font-size:13px; cursor:pointer; color:#a33;">✕</div>
                 </div>
               </div>
             </sc-for>
@@ -357,19 +357,22 @@
               <div onClick="{{ cerrarNoticia }}" style="font-size:12px; color:#8a7d6e; cursor:pointer;">Cancelar</div>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
-              <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">1 · Título</div><input placeholder="Título de la noticia" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
-              <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Fecha</div><input placeholder="14 Marzo 2026" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+              <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">1 · Título</div><input value="{{ nf.titulo }}" onChange="{{ nf.onTitulo }}" placeholder="Título de la noticia" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+              <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Fecha</div><input value="{{ nf.fecha }}" onChange="{{ nf.onFecha }}" placeholder="14 Marzo 2026" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
             </div>
             <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">2 · Fotografía</div>
-            <div style="border:2px dashed rgba(33,27,22,0.22); border-radius:10px; padding:26px; text-align:center; color:#8a7d6e; margin-bottom:16px; cursor:pointer;">
-              <div style="font-size:24px;">🖼️</div>
-              <div style="font-size:13px; font-weight:600; margin-top:6px;">Arrastra la foto aquí o haz clic para subir</div>
-            </div>
+            <label style="display:block; border:2px dashed rgba(33,27,22,0.22); border-radius:10px; padding:20px; text-align:center; color:#8a7d6e; margin-bottom:16px; cursor:pointer; background-image:{{ nf.bgPreview }}; background-size:cover; background-position:center;">
+              <div style="background:rgba(251,248,241,0.88); border-radius:8px; padding:10px; display:inline-block;">
+                <div style="font-size:22px;">🖼️</div>
+                <div style="font-size:13px; font-weight:600; margin-top:4px;">{{ nf.fotoLabel }}</div>
+              </div>
+              <input type="file" accept="image/*" onChange="{{ nf.onFoto }}" style="display:none;">
+            </label>
             <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">3 · Texto</div>
-            <textarea rows="5" placeholder="Escribe el contenido de la noticia…" style="width:100%; padding:12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px; resize:vertical; margin-bottom:18px;"></textarea>
+            <textarea value="{{ nf.texto }}" onChange="{{ nf.onTexto }}" rows="5" placeholder="Escribe el contenido de la noticia…" style="width:100%; padding:12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px; resize:vertical; margin-bottom:18px;"></textarea>
             <div style="display:flex; gap:10px;">
-              <div onClick="{{ cerrarNoticia }}" style="padding:12px 26px; border-radius:7px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:0.5px; font-weight:700; cursor:pointer;">Publicar noticia</div>
-              <div style="padding:12px 20px; border-radius:7px; border:1px solid rgba(33,27,22,0.22); font-size:12px; font-weight:600; color:#4a4038; cursor:pointer;">Guardar borrador</div>
+              <div onClick="{{ publicarNoticia }}" style="padding:12px 26px; border-radius:7px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:0.5px; font-weight:700; cursor:pointer;">Publicar noticia</div>
+              <div onClick="{{ guardarBorrador }}" style="padding:12px 20px; border-radius:7px; border:1px solid rgba(33,27,22,0.22); font-size:12px; font-weight:600; color:#4a4038; cursor:pointer;">Guardar borrador</div>
             </div>
           </div>
           </sc-if>
@@ -382,7 +385,7 @@
                   <div style="font-size:12px; color:#9a8f80;">{{ n.fecha }}</div>
                 </div>
                 <div style="font-size:11px; padding:4px 10px; border-radius:20px; background:{{ n.estBg }}; color:{{ n.estFg }}; font-weight:600;">{{ n.estado }}</div>
-                <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Editar</div>
+                <div onClick="{{ n.onRemove }}" style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
               </div>
             </sc-for>
           </div>
@@ -393,16 +396,17 @@
         <sc-if value="{{ cTabCultos }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-            <p style="font-size:13.5px; color:#6b625a; margin:0;">Agenda de cultos y actos que aparece en la portada.</p>
-            <div style="padding:10px 18px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Añadir culto</div>
+            <p style="font-size:13.5px; color:#6b625a; margin:0;">Agenda de cultos y actos que aparece en la portada. Los campos se editan al escribir.</p>
+            <div onClick="{{ addCulto }}" style="padding:10px 18px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Añadir culto</div>
           </div>
           <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; overflow:hidden;">
             <sc-for list="{{ cCultos }}" as="c" hint-placeholder-count="4">
-              <div style="display:flex; align-items:center; gap:18px; padding:16px 18px; border-top:1px solid rgba(33,27,22,0.08);">
-                <div style="width:54px; text-align:center; flex-shrink:0;"><div style="font-family:'Cinzel',serif; font-size:22px; color:var(--granate,#6E1423); line-height:1;">{{ c.dia }}</div><div style="font-size:10px; text-transform:uppercase; color:#8a7d6e;">{{ c.mes }}</div></div>
-                <div style="flex:1;"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:#211B16;">{{ c.titulo }}</div><div style="font-size:12.5px; color:#6b625a;">{{ c.detalle }}</div></div>
-                <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Editar</div>
-                <div style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+              <div style="display:grid; grid-template-columns:56px 74px 1fr 1.3fr 30px; gap:12px; align-items:center; padding:12px 18px; border-top:1px solid rgba(33,27,22,0.08);">
+                <input value="{{ c.dia }}" onChange="{{ c.onDia }}" style="height:36px; padding:0 8px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px; text-align:center;">
+                <input value="{{ c.mes }}" onChange="{{ c.onMes }}" style="height:36px; padding:0 8px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px;">
+                <input value="{{ c.titulo }}" onChange="{{ c.onTitulo }}" style="height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13.5px; font-weight:600;">
+                <input value="{{ c.detalle }}" onChange="{{ c.onDetalle }}" style="height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px;">
+                <div onClick="{{ c.onRemove }}" style="text-align:center; font-size:13px; color:#a33; cursor:pointer;">✕</div>
               </div>
             </sc-for>
           </div>
@@ -415,10 +419,15 @@
           <p style="font-size:13.5px; color:#6b625a; margin:0 0 16px;">Textos de las páginas fijas. Pulsa «Editar» para modificar el contenido y las fotos de cada una.</p>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
             <sc-for list="{{ cPaginas }}" as="p" hint-placeholder-count="8">
-              <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:10px; padding:18px 20px; display:flex; align-items:center; gap:14px;">
-                <span style="font-size:20px;">{{ p.icon }}</span>
-                <div style="flex:1;"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:var(--granate,#6E1423);">{{ p.nombre }}</div><div style="font-size:12px; color:#9a8f80;">{{ p.meta }}</div></div>
-                <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Editar</div>
+              <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:10px; padding:18px 20px;">
+                <div style="display:flex; align-items:center; gap:14px;">
+                  <span style="font-size:20px;">{{ p.icon }}</span>
+                  <div style="flex:1;"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:var(--granate,#6E1423);">{{ p.nombre }}</div><div style="font-size:12px; color:#9a8f80;">{{ p.meta }}</div></div>
+                  <div onClick="{{ p.onToggle }}" style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">{{ p.editLabel }}</div>
+                </div>
+                <sc-if value="{{ p.open }}" hint-placeholder-val="{{ false }}">
+                  <textarea value="{{ p.texto }}" onChange="{{ p.onTexto }}" rows="3" placeholder="Resumen de la página…" style="width:100%; margin-top:12px; padding:10px; border:1px solid rgba(33,27,22,0.18); border-radius:6px; background:#fff; font-size:13px; resize:vertical;"></textarea>
+                </sc-if>
               </div>
             </sc-for>
           </div>
@@ -430,15 +439,14 @@
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <p style="font-size:13.5px; color:#6b625a; margin:0;">PDF de los boletines de la Hermandad.</p>
-            <div style="padding:10px 18px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Subir boletín</div>
+            <label style="padding:10px 18px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Subir boletín<input type="file" accept="application/pdf" onChange="{{ addBoletin }}" style="display:none;"></label>
           </div>
           <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; overflow:hidden;">
             <sc-for list="{{ cBoletines }}" as="b" hint-placeholder-count="4">
               <div style="display:flex; align-items:center; gap:16px; padding:14px 18px; border-top:1px solid rgba(33,27,22,0.08);">
                 <div style="width:38px; height:48px; flex-shrink:0; border-radius:4px; background:#e6ddcc; border:1px solid rgba(33,27,22,0.15); display:flex; align-items:center; justify-content:center; font-size:16px;">📕</div>
                 <div style="flex:1;"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:#211B16;">{{ b.titulo }}</div><div style="font-size:12px; color:#9a8f80;">{{ b.meta }}</div></div>
-                <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Editar</div>
-                <div style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+                <div onClick="{{ b.onRemove }}" style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
               </div>
             </sc-for>
           </div>
@@ -449,24 +457,39 @@
 
       <!-- HERMANOS -->
       <sc-if value="{{ aTabHermanos }}" hint-placeholder-val="{{ false }}">
-      <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; overflow:hidden;">
-        <div style="padding:16px 22px; border-bottom:1px solid rgba(33,27,22,0.1); display:flex; gap:12px; align-items:center;">
-          <input placeholder="Buscar hermano por nombre o número…" style="flex:1; height:40px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:13.5px;">
-          <div style="padding:10px 16px; background:var(--oro,#A8843C); color:#2a0810; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">+ Alta hermano</div>
-          <div style="padding:10px 16px; border:1px solid rgba(33,27,22,0.22); font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; color:#4a4038; cursor:pointer; white-space:nowrap;">Exportar</div>
-        </div>
-        <div style="display:grid; grid-template-columns:60px 1fr 130px 110px 70px; gap:12px; padding:10px 22px; font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80; border-bottom:1px solid rgba(33,27,22,0.08);">
-          <div>Nº</div><div>Nombre</div><div>Antigüedad</div><div>Cuota</div><div></div>
-        </div>
-        <sc-for list="{{ censo }}" as="c" hint-placeholder-count="6">
-          <div style="display:grid; grid-template-columns:60px 1fr 130px 110px 70px; gap:12px; align-items:center; padding:13px 22px; border-top:1px solid rgba(33,27,22,0.06);">
-            <div style="font-family:'Cinzel',serif; color:var(--granate,#6E1423);">{{ c.num }}</div>
-            <div style="font-size:14px; font-weight:600;">{{ c.nombre }}</div>
-            <div style="font-size:13px; color:#6b625a;">{{ c.desde }}</div>
-            <div style="font-size:11px;"><span style="padding:4px 10px; border-radius:20px; font-weight:700; background:{{ c.estBg }}; color:{{ c.estFg }};">{{ c.estado }}</span></div>
-            <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Ver</div>
+      <div>
+        <sc-if value="{{ altaOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; padding:22px; margin-bottom:18px;">
+          <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:20px; color:var(--granate,#6E1423); margin-bottom:14px;">Alta de hermano</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">
+            <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Nombre y apellidos</div><input value="{{ af.nombre }}" onChange="{{ af.onNombre }}" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+            <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Nº de hermano</div><input value="{{ af.num }}" onChange="{{ af.onNum }}" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
           </div>
-        </sc-for>
+          <div style="display:flex; gap:10px;">
+            <div onClick="{{ confirmAlta }}" style="padding:11px 24px; border-radius:7px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:0.5px; font-weight:700; cursor:pointer;">Guardar hermano</div>
+            <div onClick="{{ cerrarAlta }}" style="padding:11px 20px; border-radius:7px; border:1px solid rgba(33,27,22,0.22); font-size:12px; font-weight:600; color:#4a4038; cursor:pointer;">Cancelar</div>
+          </div>
+        </div>
+        </sc-if>
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; overflow:hidden;">
+          <div style="padding:16px 22px; border-bottom:1px solid rgba(33,27,22,0.1); display:flex; gap:12px; align-items:center;">
+            <input value="{{ buscarHermano }}" onChange="{{ onBuscarHermano }}" placeholder="Buscar hermano por nombre o número…" style="flex:1; height:40px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:13.5px;">
+            <div onClick="{{ abrirAlta }}" style="padding:10px 16px; background:var(--oro,#A8843C); color:#2a0810; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">+ Alta hermano</div>
+            <div onClick="{{ exportarCenso }}" style="padding:10px 16px; border:1px solid rgba(33,27,22,0.22); font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; color:#4a4038; cursor:pointer; white-space:nowrap;">Exportar</div>
+          </div>
+          <div style="display:grid; grid-template-columns:60px 1fr 130px 110px 30px; gap:12px; padding:10px 22px; font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80; border-bottom:1px solid rgba(33,27,22,0.08);">
+            <div>Nº</div><div>Nombre</div><div>Antigüedad</div><div>Cuota</div><div></div>
+          </div>
+          <sc-for list="{{ censo }}" as="c" hint-placeholder-count="6">
+            <div style="display:grid; grid-template-columns:60px 1fr 130px 110px 30px; gap:12px; align-items:center; padding:13px 22px; border-top:1px solid rgba(33,27,22,0.06);">
+              <div style="font-family:'Cinzel',serif; color:var(--granate,#6E1423);">{{ c.num }}</div>
+              <div style="font-size:14px; font-weight:600;">{{ c.nombre }}</div>
+              <div style="font-size:13px; color:#6b625a;">{{ c.desde }}</div>
+              <div style="font-size:11px;"><span style="padding:4px 10px; border-radius:20px; font-weight:700; background:{{ c.estBg }}; color:{{ c.estFg }};">{{ c.estado }}</span></div>
+              <div onClick="{{ c.onRemove }}" style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+            </div>
+          </sc-for>
+        </div>
       </div>
       </sc-if>
 
@@ -634,6 +657,53 @@ class Component extends DCLogic {
     aTab: 'panel',
     cTab: 'fotos',
     editandoNoticia: false,
+    nf: { titulo:'', fecha:'', texto:'', foto:'' },
+    hero: [
+      "https://hermandadamargura.es/images/1200x630/20811590/Imagen031-JE_blfZGG-PeVbef1zBsMA.jpg",
+      "https://hermandadamargura.es/images/1024/16917111/IMG-20160128-WA0001_Original-M4UCvUmwP9swcc0izOWZxg.JPG",
+      "https://hermandadamargura.es/images/872/16995418/VirgenAmargura-Ukbvn4YNOhOBJBgmdlscTg.jpg",
+      "https://hermandadamargura.es/images/1024/17115483/WhatsApp-Image-2025-06-15-at-20.32.59-5i_7AiY1W2cA7rp5OVoxcQ.jpeg",
+      "https://hermandadamargura.es/images/1024/16997304/juntajovenbie_-bIOsYt1ybwmzYgcmSk94Dw.JPG",
+    ],
+    noticias: [
+      { titulo:'I Torrijada Solidaria', fecha:'14 Marzo 2026', estado:'Publicada', img:'https://hermandadamargura.es/images/971/24031242/Capturadepantalla2026-03-14alas2.08.53-hkPjXdtl5ecnY1HkO24LcQ.png' },
+      { titulo:'Procesión del Santísimo Sacramento', fecha:'21 Junio 2025', estado:'Publicada', img:'https://hermandadamargura.es/images/1024/17115483/WhatsApp-Image-2025-06-15-at-20.32.59-5i_7AiY1W2cA7rp5OVoxcQ.jpeg' },
+      { titulo:'Convocatoria de Cabildo General', fecha:'02 Febrero 2026', estado:'Borrador', img:'https://hermandadamargura.es/images/1024/16997712/0694d45a-540d-47ce-b14d-1160f495349d-6lNBMDaS5u60cc2w3hQHlg.JPG' },
+      { titulo:'70 aniversario fundacional', fecha:'15 Febrero 2025', estado:'Publicada', img:'https://hermandadamargura.es/images/1024/16917111/IMG-20160128-WA0001_Original-M4UCvUmwP9swcc0izOWZxg.JPG' },
+    ],
+    cultos: [
+      { dia:'12', mes:'Jul', titulo:'Misa de Hermandad', detalle:'Primer viernes · 20:30 h · Santuario' },
+      { dia:'15', mes:'Ago', titulo:'Solemne Función a la Virgen', detalle:'12:00 h · Sede canónica' },
+      { dia:'26', mes:'Mar', titulo:'Cabildo General Extraordinario', detalle:'19:00 h · Casa Hermandad' },
+      { dia:'02', mes:'Abr', titulo:'Estación de Penitencia', detalle:'Miércoles Santo · Salida' },
+    ],
+    paginas: [
+      { icon:'✝️', nombre:'Sagrados Titulares', meta:'Texto + 2 fotos', texto:'', open:false },
+      { icon:'📜', nombre:'Historia', meta:'Texto largo + fotos', texto:'', open:false },
+      { icon:'⚖️', nombre:'Junta de Gobierno', meta:'Listado + foto', texto:'', open:false },
+      { icon:'⛪', nombre:'Sede Canónica', meta:'Texto + mapa', texto:'', open:false },
+      { icon:'🏠', nombre:'Casa Hermandad', meta:'Texto + foto', texto:'', open:false },
+      { icon:'🛡️', nombre:'Heráldica', meta:'Texto + escudo', texto:'', open:false },
+      { icon:'❤️', nombre:'Caridad', meta:'Texto + foto', texto:'', open:false },
+      { icon:'🌿', nombre:'Grupo Joven', meta:'Texto + foto', texto:'', open:false },
+    ],
+    boletines: [
+      { titulo:'Boletín 2025', meta:'Cuaresma · 24 páginas' },
+      { titulo:'Boletín 2024', meta:'Cuaresma · 20 páginas' },
+      { titulo:'Boletín 2023', meta:'Cuaresma · 20 páginas' },
+      { titulo:'Especial 70 aniversario', meta:'1955–2025' },
+    ],
+    censo: [
+      { num:'428', nombre:'José María Ruiz Delgado', desde:'Desde 1998', estado:'Al corriente' },
+      { num:'429', nombre:'Ana Belén Corbacho Ruiz', desde:'Desde 2001', estado:'Al corriente' },
+      { num:'430', nombre:'Francisco Peña Montiel', desde:'Desde 2010', estado:'Pendiente' },
+      { num:'431', nombre:'María del Mar Gil Heatley', desde:'Desde 2015', estado:'Al corriente' },
+      { num:'432', nombre:'Rafael Valencia Ortega', desde:'Desde 1989', estado:'Al corriente' },
+      { num:'433', nombre:'Lucía Casasola Abad', desde:'Desde 2020', estado:'Pendiente' },
+    ],
+    buscarHermano: '',
+    altaOpen: false,
+    af: { nombre:'', num:'' },
     loginEmail: '',
     loginNote: false,
     papeletaSolicitada: false,
@@ -676,19 +746,7 @@ class Component extends DCLogic {
 
   // ---- Capa de datos (hoy mock; mañana Supabase) ----
   db = {
-    censo: () => ([
-      { num:'428', nombre:'José María Ruiz Delgado', desde:'Desde 1998', estado:'Al corriente' },
-      { num:'429', nombre:'Ana Belén Corbacho Ruiz', desde:'Desde 2001', estado:'Al corriente' },
-      { num:'430', nombre:'Francisco Peña Montiel', desde:'Desde 2010', estado:'Pendiente' },
-      { num:'431', nombre:'María del Mar Gil Heatley', desde:'Desde 2015', estado:'Al corriente' },
-      { num:'432', nombre:'Rafael Valencia Ortega', desde:'Desde 1989', estado:'Al corriente' },
-      { num:'433', nombre:'Lucía Casasola Abad', desde:'Desde 2020', estado:'Pendiente' },
-    ]),
-    pendientes: () => ([
-      { nombre:'Francisco Peña Montiel (nº 430)', concepto:'Cuota anual 2026', importe:'30,00 €' },
-      { nombre:'Lucía Casasola Abad (nº 433)', concepto:'Cuota anual 2026', importe:'30,00 €' },
-      { nombre:'José María Ruiz Delgado (nº 428)', concepto:'Aportación Casa Hermandad', importe:'20,00 €' },
-    ]),
+    censo: () => this.state.censo,
   };
 
   abrirMetodo(i) { this.setState({ metodoPickerFor:i }); }
@@ -704,6 +762,66 @@ class Component extends DCLogic {
     });
   }
   generarRemesa() { this.setState({ remesaGenerada:true }); }
+
+  // ---- Contenido web: fotos / noticias / cultos / páginas / boletines ----
+  fileUrl(e, cb) {
+    const f = e && e.target && e.target.files && e.target.files[0];
+    if (!f) return;
+    cb(URL.createObjectURL(f));
+  }
+  addHeroFoto(e) { this.fileUrl(e, (url) => this.setState(s => ({ hero:[...s.hero, url] }))); }
+  changeHeroFoto(i, e) { this.fileUrl(e, (url) => this.setState(s => { const h=s.hero.slice(); h[i]=url; return {hero:h}; })); }
+  removeHeroFoto(i) { this.setState(s => ({ hero: s.hero.filter((_,j)=>j!==i) })); }
+
+  setNf(k, v) { this.setState(s => ({ nf:{...s.nf, [k]:v} })); }
+  publicarNoticia() {
+    this.setState(s => ({
+      noticias:[{ titulo: s.nf.titulo || 'Nueva noticia', fecha: s.nf.fecha || 'Hoy', img: s.nf.foto || s.hero[0], estado:'Publicada' }, ...s.noticias],
+      editandoNoticia:false,
+    }));
+  }
+  guardarBorrador() {
+    this.setState(s => ({
+      noticias:[{ titulo: s.nf.titulo || 'Nueva noticia', fecha: s.nf.fecha || 'Hoy', img: s.nf.foto || s.hero[0], estado:'Borrador' }, ...s.noticias],
+      editandoNoticia:false,
+    }));
+  }
+  quitarNoticia(i) { this.setState(s => ({ noticias: s.noticias.filter((_,j)=>j!==i) })); }
+
+  addCulto() { this.setState(s => ({ cultos:[...s.cultos, { dia:'00', mes:'Mes', titulo:'Nuevo culto', detalle:'Detalle…' }] })); }
+  setCulto(i, k, v) { this.setState(s => { const a=s.cultos.slice(); a[i]={...a[i],[k]:v}; return {cultos:a}; }); }
+  quitarCulto(i) { this.setState(s => ({ cultos: s.cultos.filter((_,j)=>j!==i) })); }
+
+  togglePagina(i) { this.setState(s => { const a=s.paginas.slice(); a[i]={...a[i], open:!a[i].open}; return {paginas:a}; }); }
+  setPaginaTexto(i, v) { this.setState(s => { const a=s.paginas.slice(); a[i]={...a[i], texto:v}; return {paginas:a}; }); }
+
+  addBoletin(e) {
+    const f = e && e.target && e.target.files && e.target.files[0];
+    if (!f) return;
+    this.setState(s => ({ boletines:[{ titulo: f.name.replace(/\.pdf$/i,''), meta:'Recién subido' }, ...s.boletines] }));
+  }
+  quitarBoletin(i) { this.setState(s => ({ boletines: s.boletines.filter((_,j)=>j!==i) })); }
+
+  // ---- Hermanos: alta / baja / búsqueda / exportar ----
+  onBuscarHermano(v) { this.setState({ buscarHermano:v }); }
+  abrirAlta() { this.setState({ altaOpen:true, af:{ nombre:'', num:String(1000 + Math.floor(Math.random()*900)) } }); }
+  cerrarAlta() { this.setState({ altaOpen:false }); }
+  setAf(k, v) { this.setState(s => ({ af:{...s.af, [k]:v} })); }
+  confirmAlta() {
+    this.setState(s => ({
+      censo:[{ num: s.af.num || String(Date.now()).slice(-3), nombre: s.af.nombre || 'Nuevo hermano', desde:'Alta 2026', estado:'Al corriente' }, ...s.censo],
+      altaOpen:false,
+    }));
+  }
+  quitarHermano(num) { this.setState(s => ({ censo: s.censo.filter(c => c.num !== num) })); }
+  exportarCenso() {
+    const rows = [['Nº','Nombre','Antigüedad','Estado'], ...this.state.censo.map(c => [c.num, c.nombre, c.desde, c.estado])];
+    const csv = rows.map(r => r.map(x => '"' + String(x).replace(/"/g,'""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'censo_hermandad.csv'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 
   abrirDonativo() { this.setState({ donativoFormOpen:true, dform:{ nombre:'', concepto:'', importe:'', metodo:'Efectivo' } }); }
   cerrarDonativo() { this.setState({ donativoFormOpen:false }); }
@@ -779,6 +897,11 @@ class Component extends DCLogic {
     const est = (estado) => estado==='Pagado' || estado==='Al corriente'
       ? { estBg:'rgba(31,138,91,0.14)', estFg:'#1F8A5B' }
       : { estBg:'rgba(168,132,60,0.20)', estFg:'#8a6a20' };
+
+    const buscarLower = (this.state.buscarHermano || '').toLowerCase().trim();
+    const censoFiltrado = this.state.censo
+      .filter(c => !buscarLower || c.nombre.toLowerCase().includes(buscarLower) || c.num.includes(buscarLower))
+      .map(c => ({ ...c, ...est(c.estado), onRemove: () => this.quitarHermano(c.num) }));
 
     return {
       granate, oro, h, anio:'2026',
@@ -867,51 +990,71 @@ class Component extends DCLogic {
       cTabCultos: this.state.cTab==='cultos', cTabTextos: this.state.cTab==='textos', cTabBoletines: this.state.cTab==='boletines',
 
       editandoNoticia: this.state.editandoNoticia,
-      nuevaNoticia: () => this.setState({ editandoNoticia:true }),
+      nuevaNoticia: () => this.setState({ editandoNoticia:true, nf:{ titulo:'', fecha:'', texto:'', foto:'' } }),
       cerrarNoticia: () => this.setState({ editandoNoticia:false }),
+      nf: {
+        titulo: this.state.nf.titulo, fecha: this.state.nf.fecha, texto: this.state.nf.texto,
+        fotoLabel: this.state.nf.foto ? 'Foto seleccionada · cambiar' : 'Arrastra la foto aquí o haz clic para subir',
+        bgPreview: this.state.nf.foto ? `url('${this.state.nf.foto}')` : 'none',
+        onTitulo: (e) => this.setNf('titulo', e.target.value),
+        onFecha: (e) => this.setNf('fecha', e.target.value),
+        onTexto: (e) => this.setNf('texto', e.target.value),
+        onFoto: (e) => this.fileUrl(e, (url) => this.setNf('foto', url)),
+      },
+      publicarNoticia: () => this.publicarNoticia(),
+      guardarBorrador: () => this.guardarBorrador(),
 
-      cHeroFotos: [
-        { n:1, bg:"url('https://hermandadamargura.es/images/1200x630/20811590/Imagen031-JE_blfZGG-PeVbef1zBsMA.jpg')" },
-        { n:2, bg:"url('https://hermandadamargura.es/images/1024/16917111/IMG-20160128-WA0001_Original-M4UCvUmwP9swcc0izOWZxg.JPG')" },
-        { n:3, bg:"url('https://hermandadamargura.es/images/872/16995418/VirgenAmargura-Ukbvn4YNOhOBJBgmdlscTg.jpg')" },
-        { n:4, bg:"url('https://hermandadamargura.es/images/1024/17115483/WhatsApp-Image-2025-06-15-at-20.32.59-5i_7AiY1W2cA7rp5OVoxcQ.jpeg')" },
-        { n:5, bg:"url('https://hermandadamargura.es/images/1024/16997304/juntajovenbie_-bIOsYt1ybwmzYgcmSk94Dw.JPG')" },
-      ],
-      cNoticias: [
-        { titulo:'I Torrijada Solidaria', fecha:'14 Marzo 2026', estado:'Publicada', estBg:'rgba(31,138,91,0.14)', estFg:'#1F8A5B', bg:"url('https://hermandadamargura.es/images/971/24031242/Capturadepantalla2026-03-14alas2.08.53-hkPjXdtl5ecnY1HkO24LcQ.png')" },
-        { titulo:'Procesión del Santísimo Sacramento', fecha:'21 Junio 2025', estado:'Publicada', estBg:'rgba(31,138,91,0.14)', estFg:'#1F8A5B', bg:"url('https://hermandadamargura.es/images/1024/17115483/WhatsApp-Image-2025-06-15-at-20.32.59-5i_7AiY1W2cA7rp5OVoxcQ.jpeg')" },
-        { titulo:'Convocatoria de Cabildo General', fecha:'02 Febrero 2026', estado:'Borrador', estBg:'rgba(168,132,60,0.18)', estFg:'#8a6a20', bg:"url('https://hermandadamargura.es/images/1024/16997712/0694d45a-540d-47ce-b14d-1160f495349d-6lNBMDaS5u60cc2w3hQHlg.JPG')" },
-        { titulo:'70 aniversario fundacional', fecha:'15 Febrero 2025', estado:'Publicada', estBg:'rgba(31,138,91,0.14)', estFg:'#1F8A5B', bg:"url('https://hermandadamargura.es/images/1024/16917111/IMG-20160128-WA0001_Original-M4UCvUmwP9swcc0izOWZxg.JPG')" },
-      ],
-      cCultos: [
-        { dia:'12', mes:'Jul', titulo:'Misa de Hermandad', detalle:'Primer viernes · 20:30 h · Santuario' },
-        { dia:'15', mes:'Ago', titulo:'Solemne Función a la Virgen', detalle:'12:00 h · Sede canónica' },
-        { dia:'26', mes:'Mar', titulo:'Cabildo General Extraordinario', detalle:'19:00 h · Casa Hermandad' },
-        { dia:'02', mes:'Abr', titulo:'Estación de Penitencia', detalle:'Miércoles Santo · Salida' },
-      ],
-      cPaginas: [
-        { icon:'✝️', nombre:'Sagrados Titulares', meta:'Texto + 2 fotos' },
-        { icon:'📜', nombre:'Historia', meta:'Texto largo + fotos' },
-        { icon:'⚖️', nombre:'Junta de Gobierno', meta:'Listado + foto' },
-        { icon:'⛪', nombre:'Sede Canónica', meta:'Texto + mapa' },
-        { icon:'🏠', nombre:'Casa Hermandad', meta:'Texto + foto' },
-        { icon:'🛡️', nombre:'Heráldica', meta:'Texto + escudo' },
-        { icon:'❤️', nombre:'Caridad', meta:'Texto + foto' },
-        { icon:'🌿', nombre:'Grupo Joven', meta:'Texto + foto' },
-      ],
-      cBoletines: [
-        { titulo:'Boletín 2025', meta:'Cuaresma · 24 páginas' },
-        { titulo:'Boletín 2024', meta:'Cuaresma · 20 páginas' },
-        { titulo:'Boletín 2023', meta:'Cuaresma · 20 páginas' },
-        { titulo:'Especial 70 aniversario', meta:'1955–2025' },
-      ],
+      addHeroFoto: (e) => this.addHeroFoto(e),
+      cHeroFotos: this.state.hero.map((u, i) => ({
+        n: i+1, bg:`url('${u}')`,
+        onChange: (e) => this.changeHeroFoto(i, e),
+        onRemove: () => this.removeHeroFoto(i),
+      })),
+      cNoticias: this.state.noticias.map((n, i) => ({
+        titulo:n.titulo, fecha:n.fecha, estado:n.estado, bg:`url('${n.img}')`,
+        estBg: n.estado==='Publicada' ? 'rgba(31,138,91,0.14)' : 'rgba(168,132,60,0.18)',
+        estFg: n.estado==='Publicada' ? '#1F8A5B' : '#8a6a20',
+        onRemove: () => this.quitarNoticia(i),
+      })),
+      addCulto: () => this.addCulto(),
+      cCultos: this.state.cultos.map((c, i) => ({
+        dia:c.dia, mes:c.mes, titulo:c.titulo, detalle:c.detalle,
+        onDia:(e)=>this.setCulto(i,'dia',e.target.value),
+        onMes:(e)=>this.setCulto(i,'mes',e.target.value),
+        onTitulo:(e)=>this.setCulto(i,'titulo',e.target.value),
+        onDetalle:(e)=>this.setCulto(i,'detalle',e.target.value),
+        onRemove:()=>this.quitarCulto(i),
+      })),
+      cPaginas: this.state.paginas.map((p, i) => ({
+        icon:p.icon, nombre:p.nombre, meta:p.meta, texto:p.texto, open:p.open,
+        editLabel: p.open ? 'Cerrar' : 'Editar',
+        onToggle: () => this.togglePagina(i),
+        onTexto: (e) => this.setPaginaTexto(i, e.target.value),
+      })),
+      addBoletin: (e) => this.addBoletin(e),
+      cBoletines: this.state.boletines.map((b, i) => ({
+        titulo:b.titulo, meta:b.meta,
+        onRemove: () => this.quitarBoletin(i),
+      })),
       stats: [
-        { valor:'912', label:'Hermanos activos' },
+        { valor:String(this.state.censo.length), label:'Hermanos activos' },
         { valor:'87 %', label:'Cuotas al corriente' },
         { valor:String(this.state.pendientes.length), label:'Recibos pendientes' },
         { valor:'27.360 €', label:'Recaudado 2026' },
       ],
-      censo: this.db.censo().map(c => ({ ...c, ...est(c.estado) })),
+      buscarHermano: this.state.buscarHermano,
+      onBuscarHermano: (e) => this.onBuscarHermano(e.target.value),
+      altaOpen: this.state.altaOpen,
+      abrirAlta: () => this.abrirAlta(),
+      cerrarAlta: () => this.cerrarAlta(),
+      af: {
+        nombre: this.state.af.nombre, num: this.state.af.num,
+        onNombre: (e) => this.setAf('nombre', e.target.value),
+        onNum: (e) => this.setAf('num', e.target.value),
+      },
+      confirmAlta: () => this.confirmAlta(),
+      exportarCenso: () => this.exportarCenso(),
+      censo: censoFiltrado,
       pendientes: this.state.pendientes.map((p, i) => ({
         ...p,
         metodoOpen: this.state.metodoPickerFor === i,
