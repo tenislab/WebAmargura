@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://hermandadamargura.es/images/434/16915422/Logo_Amargura-removebg-preview-NoRkZKT-R2FuU_xwnzr-7g.png">
+<style>
+  html, body { margin:0; padding:0; background:#EAE3D6; }
+  * { box-sizing:border-box; }
+  a { color:inherit; text-decoration:none; }
+  input, textarea, select { font-family:'Mulish',sans-serif; }
+  ::selection { background:rgba(110,20,35,0.15); }
+</style>
+</helmet>
+
+<div style="min-height:100%; background:#EAE3D6; color:#211B16; font-family:'Mulish',sans-serif; --granate: {{ granate }}; --oro: {{ oro }};">
+
+  <!-- ============================================================ -->
+  <!-- =========================  LOGIN  ========================== -->
+  <!-- ============================================================ -->
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px 20px; background:radial-gradient(120% 90% at 50% 0%, #5E121F 0%, #3A0C11 60%, #2A0C11 100%);">
+    <div style="width:100%; max-width:410px;">
+      <div style="text-align:center; margin-bottom:26px;">
+        <img src="https://hermandadamargura.es/images/434/16915422/Logo_Amargura-removebg-preview-NoRkZKT-R2FuU_xwnzr-7g.png" alt="Escudo de la Hermandad" style="width:74px; height:74px; object-fit:contain; margin-bottom:14px;">
+        <div style="font-family:'Cinzel',serif; font-size:15px; letter-spacing:2px; color:var(--oro,#D5AC63);">PORTAL DEL HERMANO</div>
+        <div style="font-size:12px; letter-spacing:0.5px; color:rgba(240,230,214,0.6); margin-top:4px;">Hermandad de la Amargura · La Línea</div>
+      </div>
+
+      <div style="background:#FBF8F1; border-top:3px solid var(--oro,#A8843C); padding:30px 28px; box-shadow:0 24px 60px rgba(0,0,0,0.4);">
+        <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Correo electrónico</div>
+        <input value="{{ loginEmail }}" onChange="{{ onLoginEmail }}" placeholder="hermano@ejemplo.com" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; margin-bottom:16px;">
+        <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Contraseña</div>
+        <input type="password" placeholder="••••••••" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; margin-bottom:20px;">
+        <div onClick="{{ doSignIn }}" style="cursor:pointer; text-align:center; padding:13px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700;">Iniciar sesión</div>
+
+        <sc-if value="{{ loginNote }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:14px; padding:11px 14px; background:#EFE7D7; border-left:3px solid var(--oro,#A8843C); font-size:12.5px; color:#4a4038; line-height:1.5;">La autenticación real se activará al conectar <strong>Supabase Auth</strong>. Mientras tanto, entra con los accesos de demostración.</div>
+        </sc-if>
+
+        <div style="display:flex; align-items:center; gap:12px; margin:20px 0 16px;"><div style="flex:1; height:1px; background:rgba(33,27,22,0.14);"></div><span style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80;">Demostración</span><div style="flex:1; height:1px; background:rgba(33,27,22,0.14);"></div></div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div onClick="{{ demoHermano }}" style="cursor:pointer; text-align:center; padding:12px; border:1px solid var(--granate,#6E1423); color:var(--granate,#6E1423); font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Entrar como Hermano</div>
+          <div onClick="{{ demoAdmin }}" style="cursor:pointer; text-align:center; padding:12px; border:1px solid rgba(33,27,22,0.3); color:#4a4038; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Entrar como Administrador</div>
+        </div>
+        <div style="text-align:center; margin-top:18px; font-size:12px; color:#8a7d6e;">¿Olvidaste tu contraseña?</div>
+      </div>
+      <p style="text-align:center; font-family:monospace; font-size:10.5px; color:rgba(240,230,214,0.4); margin-top:20px;">MAQUETA · preparada para Supabase (Auth · Postgres · Storage)</p>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============================================================ -->
+  <!-- =====================  MODO HERMANO  ======================= -->
+  <!-- ============================================================ -->
+  <sc-if value="{{ isHermano }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;">
+    <!-- topbar -->
+    <div style="background:#3A0C11; color:#E8DBC6; padding:14px 26px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:30;">
+      <img src="https://hermandadamargura.es/images/434/16915422/Logo_Amargura-removebg-preview-NoRkZKT-R2FuU_xwnzr-7g.png" alt="Escudo" style="width:38px; height:38px; object-fit:contain;">
+      <div style="flex:1;">
+        <div style="font-family:'Cinzel',serif; font-size:12px; letter-spacing:1.5px; color:var(--oro,#D5AC63);">PORTAL DEL HERMANO</div>
+        <div style="font-size:11px; color:rgba(232,219,198,0.6);">Hermandad de la Amargura</div>
+      </div>
+      <div style="text-align:right; margin-right:6px;"><div style="font-size:13px; font-weight:600;">{{ h.nombre }}</div><div style="font-size:11px; color:rgba(232,219,198,0.6);">Hermano nº {{ h.num }}</div></div>
+      <div onClick="{{ logout }}" style="cursor:pointer; padding:8px 14px; border:1px solid rgba(232,219,198,0.35); font-size:11px; letter-spacing:1px; text-transform:uppercase;">Salir</div>
+    </div>
+
+    <div style="max-width:1040px; margin:0 auto; padding:26px 22px 60px;">
+      <!-- tabs -->
+      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:26px;">
+        <sc-for list="{{ hermanoTabs }}" as="t" hint-placeholder-count="5">
+          <div onClick="{{ t.onClick }}" style="cursor:pointer; padding:9px 16px; border-radius:8px; font-size:12.5px; font-weight:600; background:{{ t.bg }}; color:{{ t.fg }};">{{ t.label }}</div>
+        </sc-for>
+      </div>
+
+      <!-- RESUMEN -->
+      <sc-if value="{{ hTabResumen }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:18px; margin-bottom:18px;">
+          <div style="background:linear-gradient(135deg, #6E1423, #8a2a37); color:#F6ECDD; border-radius:16px; padding:26px; position:relative; overflow:hidden;">
+            <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; opacity:0.75;">Cuota {{ anio }} · {{ h.estado }}</div>
+            <div style="font-family:'Cinzel',serif; font-size:38px; margin:10px 0 4px;">{{ h.cuotaAnual }}</div>
+            <div style="font-size:13px; opacity:0.85;">Domiciliada · {{ h.mensual }}/mes</div>
+            <div style="margin-top:20px; display:inline-block; padding:6px 14px; background:rgba(246,236,221,0.16); border:1px solid rgba(246,236,221,0.3); border-radius:20px; font-size:12px;">✓ Recibo del año al corriente</div>
+          </div>
+          <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; padding:22px;">
+            <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#8a7d6e; margin-bottom:12px;">Accesos rápidos</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div onClick="{{ goCuotas }}" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:11px 14px; border:1px solid rgba(33,27,22,0.12); border-radius:9px; font-size:13.5px;">Mis cuotas y recibos <span style="color:var(--granate,#6E1423);">›</span></div>
+              <div onClick="{{ goPapeleta }}" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:11px 14px; border:1px solid rgba(33,27,22,0.12); border-radius:9px; font-size:13.5px;">Papeleta de sitio <span style="color:var(--granate,#6E1423);">›</span></div>
+              <div onClick="{{ goDatos }}" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:11px 14px; border:1px solid rgba(33,27,22,0.12); border-radius:9px; font-size:13.5px;">Actualizar mis datos <span style="color:var(--granate,#6E1423);">›</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; padding:22px;">
+          <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#8a7d6e; margin-bottom:14px;">Avisos de la Hermandad</div>
+          <sc-for list="{{ avisos }}" as="a" hint-placeholder-count="2">
+            <div style="display:flex; gap:14px; padding:12px 0; border-top:1px solid rgba(33,27,22,0.08);">
+              <div style="width:8px; height:8px; border-radius:50%; background:var(--oro,#A8843C); margin-top:6px; flex-shrink:0;"></div>
+              <div><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:#211B16;">{{ a.titulo }}</div><div style="font-size:12.5px; color:#6b625a;">{{ a.detalle }}</div></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; padding:20px; margin-top:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;">
+            <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#8a7d6e;">Campaña activa</div>
+            <div style="font-size:12px; color:#6b625a;">{{ campaniaPct }}%</div>
+          </div>
+          <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:var(--granate,#6E1423); margin-bottom:10px;">{{ campania.titulo }}</div>
+          <div style="height:8px; border-radius:5px; background:#EFE7D7; overflow:hidden; margin-bottom:8px;">
+            <div style="height:100%; width:{{ campaniaPct }}%; background:linear-gradient(90deg, var(--oro,#A8843C), var(--granate,#6E1423)); border-radius:5px;"></div>
+          </div>
+          <div style="font-size:12.5px; color:#6b625a;">{{ campania.recaudado }} € recaudados de {{ campania.objetivo }} € objetivo</div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- CUOTAS -->
+      <sc-if value="{{ hTabCuotas }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; overflow:hidden;">
+        <div style="padding:18px 22px; border-bottom:1px solid rgba(33,27,22,0.1);"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--granate,#6E1423);">Cuotas y recibos</div><div style="font-size:12.5px; color:#6b625a;">Histórico de pagos de tu cuota de hermano.</div></div>
+        <sc-for list="{{ recibos }}" as="r" hint-placeholder-count="5">
+          <div style="display:flex; align-items:center; gap:16px; padding:15px 22px; border-top:1px solid rgba(33,27,22,0.07);">
+            <div style="flex:1;"><div style="font-weight:600; font-size:14.5px;">{{ r.concepto }}</div><div style="font-size:12px; color:#9a8f80;">{{ r.detalle }}</div></div>
+            <div style="font-family:'Cinzel',serif; font-size:16px; color:#211B16;">{{ r.importe }}</div>
+            <div style="width:96px; text-align:center; font-size:11px; padding:5px 8px; border-radius:20px; font-weight:700; background:{{ r.estBg }}; color:{{ r.estFg }};">{{ r.estado }}</div>
+            <sc-if value="{{ r.pagable }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ r.onPagar }}" style="cursor:pointer; padding:8px 16px; border-radius:7px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700;">Pagar</div>
+            </sc-if>
+            <sc-if value="{{ r.descargable }}" hint-placeholder-val="{{ false }}">
+              <div style="cursor:pointer; padding:8px 16px; border-radius:7px; border:1px solid rgba(33,27,22,0.2); font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; color:#4a4038;">Recibo</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <!-- MODAL DE PAGO (listo para Stripe Checkout) -->
+      <sc-if value="{{ pagoOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed; inset:0; background:rgba(20,6,8,0.55); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px;">
+        <div style="width:100%; max-width:400px; background:#FBF8F1; border-radius:16px; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.4);">
+          <div style="padding:22px 26px; background:var(--granate,#6E1423); color:#F0E6D6;">
+            <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; opacity:0.78; margin-bottom:4px;">Pago seguro</div>
+            <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px;">{{ pagoRecibo.concepto }}</div>
+          </div>
+          <div style="padding:26px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:22px; padding-bottom:18px; border-bottom:1px dashed rgba(33,27,22,0.18);">
+              <span style="font-size:13px; color:#6b625a;">Importe a pagar</span>
+              <span style="font-family:'Cinzel',serif; font-size:26px; color:var(--granate,#6E1423);">{{ pagoRecibo.importe }}</span>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:18px;">
+              <div onClick="{{ setPagoTarjeta }}" style="flex:1; text-align:center; cursor:pointer; padding:10px; border-radius:8px; font-size:11.5px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; background:{{ tarjetaBg }}; color:{{ tarjetaFg }};">Tarjeta</div>
+              <div onClick="{{ setPagoBizum }}" style="flex:1; text-align:center; cursor:pointer; padding:10px; border-radius:8px; font-size:11.5px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; background:{{ bizumBg }}; color:{{ bizumFg }};">Bizum</div>
+            </div>
+            <sc-if value="{{ esTarjeta }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:8px;">Datos de la tarjeta</div>
+              <div style="border:1px solid rgba(33,27,22,0.2); border-radius:8px; padding:12px 14px; margin-bottom:10px; font-size:14px; color:#4a4038; background:#fff;">4242 4242 4242 4242</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px;">
+                <div style="border:1px solid rgba(33,27,22,0.2); border-radius:8px; padding:12px 14px; font-size:14px; color:#4a4038; background:#fff;">12 / 28</div>
+                <div style="border:1px solid rgba(33,27,22,0.2); border-radius:8px; padding:12px 14px; font-size:14px; color:#4a4038; background:#fff;">CVC</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ esBizum }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center; padding:18px 10px; margin-bottom:24px; background:#F5F0E6; border-radius:8px;">
+                <div style="font-size:12.5px; color:#6b625a; margin-bottom:6px;">Envía <strong>{{ pagoRecibo.importe }}</strong> por Bizum al</div>
+                <div style="font-family:'Cinzel',serif; font-size:22px; color:var(--granate,#6E1423); letter-spacing:1px;">{{ bizumNumero }}</div>
+                <div style="font-size:11.5px; color:#9a8f80; margin-top:6px;">Concepto: {{ pagoRecibo.concepto }}</div>
+              </div>
+            </sc-if>
+            <div onClick="{{ confirmarPago }}" style="cursor:pointer; text-align:center; padding:14px; border-radius:8px; background:#211B16; color:#fff; font-size:13px; font-weight:700; letter-spacing:0.3px;">{{ pagoBtnLabel }}</div>
+            <div onClick="{{ cerrarPago }}" style="text-align:center; margin-top:14px; font-size:12px; color:#8a7d6e; cursor:pointer;">Cancelar</div>
+            <div style="text-align:center; margin-top:18px; font-size:11px; color:#9a8f80;">{{ trustLine }}</div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- MIS DONATIVOS -->
+      <sc-if value="{{ hTabMisDonativos }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; overflow:hidden;">
+        <div style="padding:18px 22px; border-bottom:1px solid rgba(33,27,22,0.1);"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--granate,#6E1423);">Mis donativos</div><div style="font-size:12.5px; color:#6b625a;">Aportaciones puntuales registradas a tu nombre (no ligadas a la cuota anual).</div></div>
+        <sc-for list="{{ misDonativos }}" as="d" hint-placeholder-count="1">
+          <div style="display:flex; align-items:center; gap:16px; padding:15px 22px; border-top:1px solid rgba(33,27,22,0.07);">
+            <div style="flex:1;"><div style="font-weight:600; font-size:14.5px;">{{ d.concepto }}</div><div style="font-size:12px; color:#9a8f80;">{{ d.fecha }} · {{ d.metodo }}</div></div>
+            <div style="font-family:'Cinzel',serif; font-size:16px; color:#211B16;">{{ d.importe }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ sinMisDonativos }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:26px 22px; text-align:center; font-size:13.5px; color:#6b625a;">Aún no tienes donativos registrados a tu nombre.</div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- PAPELETA -->
+      <sc-if value="{{ hTabPapeleta }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; padding:24px;">
+        <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--granate,#6E1423); margin-bottom:4px;">Papeleta de sitio · Estación de Penitencia</div>
+        <div style="font-size:13px; color:#6b625a; margin-bottom:20px;">Solicita tu puesto para la salida procesional del Miércoles Santo.</div>
+        <sc-if value="{{ papeletaSolicitada }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:20px; background:#EFE7D7; border-left:3px solid var(--oro,#A8843C);"><div style="font-family:'Cinzel',serif; font-size:14px; color:var(--granate,#6E1423); margin-bottom:6px;">SOLICITUD RECIBIDA</div><p style="font-size:13.5px; color:#4a4038; margin:0;">Tu solicitud de papeleta ha quedado registrada. Cuando abra el reparto, la Secretaría te confirmará el puesto asignado.</p></div>
+        </sc-if>
+        <sc-if value="{{ papeletaForm }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Cuerpo</div>
+            <select style="width:100%; height:44px; padding:0 10px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px;"><option>Nazareno de cirio</option><option>Costalero</option><option>Monaguillo</option><option>Insignia / vara</option><option>Acólito</option></select></div>
+          <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Paso</div>
+            <select style="width:100%; height:44px; padding:0 10px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px;"><option>Santísimo Cristo de la Misericordia</option><option>María Santísima de la Amargura</option></select></div>
+          <div style="grid-column:1/3;"><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Observaciones</div>
+            <textarea rows="3" placeholder="Indica si quieres ir junto a otro hermano, altura, etc." style="width:100%; padding:10px 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; resize:vertical;"></textarea></div>
+        </div>
+        <div onClick="{{ solicitarPapeleta }}" style="cursor:pointer; display:inline-block; margin-top:18px; padding:12px 26px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Solicitar papeleta</div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- DATOS -->
+      <sc-if value="{{ hTabDatos }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; padding:24px;">
+        <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--granate,#6E1423); margin-bottom:18px;">Mis datos</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Nombre y apellidos</div><input value="{{ h.nombre }}" onChange="{{ onDatoNombre }}" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px;"></div>
+          <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">DNI</div><input value="{{ h.dni }}" onChange="{{ onDatoDni }}" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px;"></div>
+          <div style="grid-column:1/3;"><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Dirección</div><input value="{{ h.dir }}" onChange="{{ onDatoDir }}" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px;"></div>
+          <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Teléfono</div><input value="{{ h.tel }}" onChange="{{ onDatoTel }}" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px;"></div>
+          <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Correo</div><input value="{{ h.email }}" onChange="{{ onDatoEmail }}" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px;"></div>
+          <div style="grid-column:1/3;"><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">IBAN (domiciliación)</div><input value="{{ h.iban }}" onChange="{{ onDatoIban }}" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px;"></div>
+        </div>
+        <div style="margin-top:18px; display:flex; align-items:center; gap:16px;">
+          <div onClick="{{ guardarDatos }}" style="cursor:pointer; padding:12px 26px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Guardar cambios</div>
+          <sc-if value="{{ datosGuardados }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px; color:#1F8A5B; font-weight:600;">✓ Cambios guardados</span></sc-if>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- DOCUMENTOS -->
+      <sc-if value="{{ hTabDocs }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; overflow:hidden;">
+        <div style="padding:18px 22px; border-bottom:1px solid rgba(33,27,22,0.1);"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--granate,#6E1423);">Mis documentos</div></div>
+        <sc-for list="{{ documentos }}" as="d" hint-placeholder-count="3">
+          <div style="display:flex; align-items:center; gap:16px; padding:15px 22px; border-top:1px solid rgba(33,27,22,0.07);">
+            <span style="font-size:20px;">📄</span>
+            <div style="flex:1;"><div style="font-weight:600; font-size:14px;">{{ d.nombre }}</div><div style="font-size:12px; color:#9a8f80;">{{ d.meta }}</div></div>
+            <div style="cursor:pointer; padding:8px 16px; border-radius:7px; border:1px solid var(--granate,#6E1423); color:var(--granate,#6E1423); font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700;">Descargar</div>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============================================================ -->
+  <!-- =====================  MODO ADMIN  ========================= -->
+  <!-- ============================================================ -->
+  <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex; min-height:100vh;">
+    <!-- sidebar -->
+    <div style="width:248px; flex-shrink:0; background:#3A0C11; color:#E8DBC6; position:sticky; top:0; height:100vh; display:flex; flex-direction:column;">
+      <div style="padding:20px 20px 16px; display:flex; align-items:center; gap:11px; border-bottom:1px solid rgba(255,255,255,0.1);">
+        <img src="https://hermandadamargura.es/images/434/16915422/Logo_Amargura-removebg-preview-NoRkZKT-R2FuU_xwnzr-7g.png" alt="Escudo" style="width:38px; height:38px; object-fit:contain;">
+        <div><div style="font-family:'Cinzel',serif; font-size:12px; letter-spacing:1px; color:var(--oro,#D5AC63); line-height:1.2;">AMARGURA</div><div style="font-size:10px; letter-spacing:0.5px; color:rgba(232,219,198,0.6); text-transform:uppercase;">Administración</div></div>
+      </div>
+      <div style="padding:14px 12px; flex:1;">
+        <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(232,219,198,0.45); padding:8px 12px 6px;">General</div>
+        <sc-for list="{{ navPrincipal }}" as="it" hint-placeholder-count="2">
+          <div onClick="{{ it.onClick }}" style="display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:7px; cursor:pointer; font-size:13.5px; font-weight:500; margin-bottom:1px; background:{{ it.bg }}; color:{{ it.fg }};"><span style="width:17px; text-align:center;">{{ it.icon }}</span>{{ it.label }}</div>
+        </sc-for>
+        <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(232,219,198,0.45); padding:16px 12px 6px;">Gestión de hermanos</div>
+        <sc-for list="{{ navGestion }}" as="it" hint-placeholder-count="3">
+          <div onClick="{{ it.onClick }}" style="display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:7px; cursor:pointer; font-size:13.5px; font-weight:500; margin-bottom:1px; background:{{ it.bg }}; color:{{ it.fg }};"><span style="width:17px; text-align:center;">{{ it.icon }}</span>{{ it.label }}</div>
+        </sc-for>
+      </div>
+      <div style="padding:16px 18px; border-top:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; gap:10px;">
+        <div style="width:34px; height:34px; border-radius:50%; background:var(--oro,#A8843C); color:#3A0C11; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">S</div>
+        <div style="flex:1;"><div style="font-size:12.5px; font-weight:600;">Secretaría</div><div style="font-size:10.5px; color:rgba(232,219,198,0.55);">Administrador</div></div>
+        <span onClick="{{ logout }}" style="cursor:pointer; font-size:11px; color:rgba(232,219,198,0.72);">Salir</span>
+      </div>
+    </div>
+    <!-- main -->
+    <div style="flex:1; min-width:0; background:#EAE3D6;">
+      <div style="background:#FBF8F1; border-bottom:1px solid rgba(33,27,22,0.12); padding:16px 32px; position:sticky; top:0; z-index:20;">
+        <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80;">Secretaría</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:600; color:var(--granate,#6E1423); line-height:1.1;">{{ aTitulo }}</div>
+      </div>
+      <div style="padding:28px 32px 60px; max-width:960px;">
+
+      <!-- PANEL / stats -->
+      <sc-if value="{{ aTabPanel }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px;">
+          <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+            <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:14px; padding:20px;">
+              <div style="font-family:'Cinzel',serif; font-size:30px; color:var(--granate,#6E1423); line-height:1;">{{ s.valor }}</div>
+              <div style="font-size:12px; color:#6b625a; margin-top:8px;">{{ s.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:#EFE7D7; border-left:3px solid var(--oro,#A8843C); padding:20px 24px; font-size:13.5px; color:#4a4038; line-height:1.6;">Desde aquí la Secretaría gestiona el <strong>censo de hermanos</strong>, el <strong>control de cuotas</strong> y los <strong>comunicados</strong>. La gestión de los contenidos de la web (fotos, noticias, cultos) se realiza desde el panel de contenido. Todo quedará respaldado en <strong>Supabase</strong> con acceso restringido por rol.</div>
+      </div>
+      </sc-if>
+
+      <!-- CONTENIDO WEB -->
+      <sc-if value="{{ aTabContenido }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px;">
+          <sc-for list="{{ contenidoTabs }}" as="t" hint-placeholder-count="5">
+            <div onClick="{{ t.onClick }}" style="cursor:pointer; padding:8px 15px; border-radius:7px; font-size:12px; font-weight:600; background:{{ t.bg }}; color:{{ t.fg }};">{{ t.label }}</div>
+          </sc-for>
+        </div>
+
+        <!-- Fotos de portada -->
+        <sc-if value="{{ cTabFotos }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="display:flex; align-items:start; justify-content:space-between; gap:16px; margin-bottom:16px;">
+            <p style="font-size:13.5px; color:#6b625a; margin:0; max-width:560px; line-height:1.5;">Se alternan de fondo en la cabecera de inicio. Arrástralas para reordenar, cámbialas o elimínalas.</p>
+            <div style="white-space:nowrap; padding:9px 16px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Añadir foto</div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+            <sc-for list="{{ cHeroFotos }}" as="f" hint-placeholder-count="5">
+              <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; overflow:hidden;">
+                <div style="position:relative; aspect-ratio:16/11; background:#eee;">
+                  <div style="width:100%; height:100%; background-image:{{ f.bg }}; background-size:cover; background-position:center;"></div>
+                  <div style="position:absolute; top:8px; left:8px; width:24px; height:24px; border-radius:6px; background:rgba(42,8,16,0.8); color:#F0E6D6; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;">{{ f.n }}</div>
+                </div>
+                <div style="padding:11px 13px; display:flex; gap:8px;">
+                  <div style="flex:1; text-align:center; padding:8px; border-radius:6px; background:#EFE7D7; font-size:12px; font-weight:600; color:var(--granate,#6E1423); cursor:pointer;">Cambiar</div>
+                  <div style="width:38px; text-align:center; padding:8px; border-radius:6px; border:1px solid rgba(33,27,22,0.18); font-size:13px; cursor:pointer; color:#a33;">✕</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- Actualidad -->
+        <sc-if value="{{ cTabActualidad }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <p style="font-size:13.5px; color:#6b625a; margin:0;">Noticias publicadas en la web.</p>
+            <div onClick="{{ nuevaNoticia }}" style="padding:10px 18px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Nueva noticia</div>
+          </div>
+          <sc-if value="{{ editandoNoticia }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; padding:26px; margin-bottom:22px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+              <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--granate,#6E1423);">Nueva noticia</div>
+              <div style="flex:1;"></div>
+              <div onClick="{{ cerrarNoticia }}" style="font-size:12px; color:#8a7d6e; cursor:pointer;">Cancelar</div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+              <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">1 · Título</div><input placeholder="Título de la noticia" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+              <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Fecha</div><input placeholder="14 Marzo 2026" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+            </div>
+            <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">2 · Fotografía</div>
+            <div style="border:2px dashed rgba(33,27,22,0.22); border-radius:10px; padding:26px; text-align:center; color:#8a7d6e; margin-bottom:16px; cursor:pointer;">
+              <div style="font-size:24px;">🖼️</div>
+              <div style="font-size:13px; font-weight:600; margin-top:6px;">Arrastra la foto aquí o haz clic para subir</div>
+            </div>
+            <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">3 · Texto</div>
+            <textarea rows="5" placeholder="Escribe el contenido de la noticia…" style="width:100%; padding:12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px; resize:vertical; margin-bottom:18px;"></textarea>
+            <div style="display:flex; gap:10px;">
+              <div onClick="{{ cerrarNoticia }}" style="padding:12px 26px; border-radius:7px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:0.5px; font-weight:700; cursor:pointer;">Publicar noticia</div>
+              <div style="padding:12px 20px; border-radius:7px; border:1px solid rgba(33,27,22,0.22); font-size:12px; font-weight:600; color:#4a4038; cursor:pointer;">Guardar borrador</div>
+            </div>
+          </div>
+          </sc-if>
+          <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; overflow:hidden;">
+            <sc-for list="{{ cNoticias }}" as="n" hint-placeholder-count="5">
+              <div style="display:flex; align-items:center; gap:16px; padding:14px 18px; border-top:1px solid rgba(33,27,22,0.08);">
+                <div style="width:64px; height:44px; border-radius:6px; flex-shrink:0; background-image:{{ n.bg }}; background-size:cover; background-position:center;"></div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:#211B16; line-height:1.15;">{{ n.titulo }}</div>
+                  <div style="font-size:12px; color:#9a8f80;">{{ n.fecha }}</div>
+                </div>
+                <div style="font-size:11px; padding:4px 10px; border-radius:20px; background:{{ n.estBg }}; color:{{ n.estFg }}; font-weight:600;">{{ n.estado }}</div>
+                <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Editar</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- Cultos -->
+        <sc-if value="{{ cTabCultos }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <p style="font-size:13.5px; color:#6b625a; margin:0;">Agenda de cultos y actos que aparece en la portada.</p>
+            <div style="padding:10px 18px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Añadir culto</div>
+          </div>
+          <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; overflow:hidden;">
+            <sc-for list="{{ cCultos }}" as="c" hint-placeholder-count="4">
+              <div style="display:flex; align-items:center; gap:18px; padding:16px 18px; border-top:1px solid rgba(33,27,22,0.08);">
+                <div style="width:54px; text-align:center; flex-shrink:0;"><div style="font-family:'Cinzel',serif; font-size:22px; color:var(--granate,#6E1423); line-height:1;">{{ c.dia }}</div><div style="font-size:10px; text-transform:uppercase; color:#8a7d6e;">{{ c.mes }}</div></div>
+                <div style="flex:1;"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:#211B16;">{{ c.titulo }}</div><div style="font-size:12.5px; color:#6b625a;">{{ c.detalle }}</div></div>
+                <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Editar</div>
+                <div style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- Páginas y textos -->
+        <sc-if value="{{ cTabTextos }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <p style="font-size:13.5px; color:#6b625a; margin:0 0 16px;">Textos de las páginas fijas. Pulsa «Editar» para modificar el contenido y las fotos de cada una.</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+            <sc-for list="{{ cPaginas }}" as="p" hint-placeholder-count="8">
+              <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:10px; padding:18px 20px; display:flex; align-items:center; gap:14px;">
+                <span style="font-size:20px;">{{ p.icon }}</span>
+                <div style="flex:1;"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:var(--granate,#6E1423);">{{ p.nombre }}</div><div style="font-size:12px; color:#9a8f80;">{{ p.meta }}</div></div>
+                <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Editar</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- Boletines -->
+        <sc-if value="{{ cTabBoletines }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <p style="font-size:13.5px; color:#6b625a; margin:0;">PDF de los boletines de la Hermandad.</p>
+            <div style="padding:10px 18px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer;">+ Subir boletín</div>
+          </div>
+          <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; overflow:hidden;">
+            <sc-for list="{{ cBoletines }}" as="b" hint-placeholder-count="4">
+              <div style="display:flex; align-items:center; gap:16px; padding:14px 18px; border-top:1px solid rgba(33,27,22,0.08);">
+                <div style="width:38px; height:48px; flex-shrink:0; border-radius:4px; background:#e6ddcc; border:1px solid rgba(33,27,22,0.15); display:flex; align-items:center; justify-content:center; font-size:16px;">📕</div>
+                <div style="flex:1;"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:18px; color:#211B16;">{{ b.titulo }}</div><div style="font-size:12px; color:#9a8f80;">{{ b.meta }}</div></div>
+                <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Editar</div>
+                <div style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- HERMANOS -->
+      <sc-if value="{{ aTabHermanos }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; overflow:hidden;">
+        <div style="padding:16px 22px; border-bottom:1px solid rgba(33,27,22,0.1); display:flex; gap:12px; align-items:center;">
+          <input placeholder="Buscar hermano por nombre o número…" style="flex:1; height:40px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:13.5px;">
+          <div style="padding:10px 16px; background:var(--oro,#A8843C); color:#2a0810; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">+ Alta hermano</div>
+          <div style="padding:10px 16px; border:1px solid rgba(33,27,22,0.22); font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; color:#4a4038; cursor:pointer; white-space:nowrap;">Exportar</div>
+        </div>
+        <div style="display:grid; grid-template-columns:60px 1fr 130px 110px 70px; gap:12px; padding:10px 22px; font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80; border-bottom:1px solid rgba(33,27,22,0.08);">
+          <div>Nº</div><div>Nombre</div><div>Antigüedad</div><div>Cuota</div><div></div>
+        </div>
+        <sc-for list="{{ censo }}" as="c" hint-placeholder-count="6">
+          <div style="display:grid; grid-template-columns:60px 1fr 130px 110px 70px; gap:12px; align-items:center; padding:13px 22px; border-top:1px solid rgba(33,27,22,0.06);">
+            <div style="font-family:'Cinzel',serif; color:var(--granate,#6E1423);">{{ c.num }}</div>
+            <div style="font-size:14px; font-weight:600;">{{ c.nombre }}</div>
+            <div style="font-size:13px; color:#6b625a;">{{ c.desde }}</div>
+            <div style="font-size:11px;"><span style="padding:4px 10px; border-radius:20px; font-weight:700; background:{{ c.estBg }}; color:{{ c.estFg }};">{{ c.estado }}</span></div>
+            <div style="font-size:12px; color:var(--granate,#6E1423); font-weight:600; cursor:pointer;">Ver</div>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <!-- CUOTAS -->
+      <sc-if value="{{ aTabCuotas }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; overflow:hidden;">
+        <div style="padding:16px 22px; border-bottom:1px solid rgba(33,27,22,0.1);"><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--granate,#6E1423);">Recibos pendientes</div><div style="font-size:12.5px; color:#6b625a;">Genera la remesa de domiciliaciones o marca pagos manuales.</div></div>
+        <sc-for list="{{ pendientes }}" as="p" hint-placeholder-count="4">
+          <div style="display:flex; align-items:center; gap:16px; padding:14px 22px; border-top:1px solid rgba(33,27,22,0.07);">
+            <div style="flex:1;"><div style="font-weight:600; font-size:14px;">{{ p.nombre }}</div><div style="font-size:12px; color:#9a8f80;">{{ p.concepto }}</div></div>
+            <div style="font-family:'Cinzel',serif; font-size:15px;">{{ p.importe }}</div>
+            <sc-if value="{{ p.metodoClosed }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ p.onAbrir }}" style="padding:8px 14px; border-radius:7px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:11px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Marcar pagado</div>
+            </sc-if>
+            <sc-if value="{{ p.metodoOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                <span style="font-size:10.5px; color:#9a8f80; margin-right:2px; white-space:nowrap;">¿Cómo se pagó?</span>
+                <div onClick="{{ p.onDomiciliacion }}" style="padding:7px 11px; border-radius:6px; border:1px solid rgba(33,27,22,0.2); font-size:10.5px; text-transform:uppercase; font-weight:700; color:#4a4038; cursor:pointer; white-space:nowrap;">Domiciliación</div>
+                <div onClick="{{ p.onEfectivo }}" style="padding:7px 11px; border-radius:6px; border:1px solid rgba(33,27,22,0.2); font-size:10.5px; text-transform:uppercase; font-weight:700; color:#4a4038; cursor:pointer; white-space:nowrap;">Efectivo · Casa Hermandad</div>
+                <div onClick="{{ p.onTarjeta }}" style="padding:7px 11px; border-radius:6px; border:1px solid rgba(33,27,22,0.2); font-size:10.5px; text-transform:uppercase; font-weight:700; color:#4a4038; cursor:pointer; white-space:nowrap;">Tarjeta</div>
+                <div onClick="{{ p.onBizum }}" style="padding:7px 11px; border-radius:6px; border:1px solid rgba(33,27,22,0.2); font-size:10.5px; text-transform:uppercase; font-weight:700; color:#4a4038; cursor:pointer; white-space:nowrap;">Bizum</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ sinPendientes }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:24px 22px; text-align:center; font-size:13.5px; color:#6b625a;">No quedan recibos pendientes. 🎉</div>
+        </sc-if>
+        <div style="padding:16px 22px; border-top:1px solid rgba(33,27,22,0.1); display:flex; justify-content:flex-end; align-items:center; gap:14px;">
+          <sc-if value="{{ remesaGenerada }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px; color:#1F8A5B; font-weight:600;">✓ Remesa generada</span></sc-if>
+          <span onClick="{{ generarRemesa }}" style="padding:11px 20px; background:var(--oro,#A8843C); color:#2a0810; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer;">Generar remesa SEPA</span>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- DONATIVOS -->
+      <sc-if value="{{ aTabDonativos }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="background:#EFE7D7; border-left:3px solid var(--oro,#A8843C); padding:16px 22px; font-size:13px; color:#4a4038; line-height:1.6; margin-bottom:18px;">Aquí se registran donativos de hermanos o de fuera de la Hermandad (no ligados a la cuota anual): reparaciones, ofrendas, aportaciones puntuales… Cuando esté Stripe conectado, los donativos con tarjeta entrarán solos en esta lista.</div>
+
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; overflow:hidden; margin-bottom:20px;">
+          <div style="padding:16px 22px; border-bottom:1px solid rgba(33,27,22,0.1); display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--granate,#6E1423);">Donativos registrados</div><div style="font-size:12.5px; color:#6b625a;">Total: <strong>{{ totalDonativos }}</strong></div></div>
+            <div onClick="{{ abrirDonativo }}" style="padding:10px 18px; border-radius:7px; background:var(--oro,#A8843C); color:#2a0810; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap;">+ Añadir donativo</div>
+          </div>
+
+          <sc-if value="{{ donativoFormOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:20px 22px; border-bottom:1px solid rgba(33,27,22,0.1); background:#F5F0E6;">
+            <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:14px; margin-bottom:12px;">
+              <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Nombre del donante</div><input value="{{ dform.nombre }}" onChange="{{ dform.onNombre }}" list="censoDonantes" placeholder="Busca un hermano del censo, o escribe «Anónimo»" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;">
+                <datalist id="censoDonantes">
+                  <sc-for list="{{ censoNombres }}" as="n" hint-placeholder-count="6"><option value="{{ n }}"></option></sc-for>
+                </datalist>
+              </div>
+              <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Importe</div><input value="{{ dform.importe }}" onChange="{{ dform.onImporte }}" placeholder="50,00 €" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+            </div>
+            <div style="margin-bottom:12px;"><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Concepto</div><input value="{{ dform.concepto }}" onChange="{{ dform.onConcepto }}" placeholder="Ej. Restauración del paso, ofrenda floral…" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+            <div style="margin-bottom:16px;">
+              <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Método</div>
+              <select value="{{ dform.metodo }}" onChange="{{ dform.onMetodo }}" style="width:220px; height:42px; padding:0 10px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;">
+                <option value="Efectivo">Efectivo · Casa Hermandad</option>
+                <option value="Transferencia">Transferencia bancaria</option>
+                <option value="Bizum">Bizum</option>
+                <option value="Tarjeta · Stripe">Tarjeta · Stripe</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <div onClick="{{ guardarDonativo }}" style="padding:11px 22px; border-radius:7px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:0.5px; font-weight:700; cursor:pointer;">Guardar donativo</div>
+              <div onClick="{{ cerrarDonativo }}" style="padding:11px 18px; border-radius:7px; border:1px solid rgba(33,27,22,0.22); font-size:12px; font-weight:600; color:#4a4038; cursor:pointer;">Cancelar</div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-for list="{{ donativos }}" as="d" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:16px; padding:14px 22px; border-top:1px solid rgba(33,27,22,0.07);">
+              <div style="flex:1; min-width:160px;"><div style="font-weight:600; font-size:14px;">{{ d.nombreMostrado }}</div><div style="font-size:12px; color:#9a8f80;">{{ d.concepto }} · {{ d.fecha }}</div></div>
+              <div style="font-size:10.5px; padding:4px 10px; border-radius:20px; background:rgba(110,20,35,0.08); color:#6E1423; font-weight:600; white-space:nowrap;">{{ d.metodo }}</div>
+              <div style="font-family:'Cinzel',serif; font-size:15px; width:90px; text-align:right;">{{ d.importe }}</div>
+              <div onClick="{{ d.onQuitar }}" style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; padding:22px; margin-bottom:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; gap:12px; flex-wrap:wrap;">
+            <input value="{{ campania.titulo }}" onChange="{{ campania.onTitulo }}" style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--granate,#6E1423); border:none; border-bottom:1px dashed rgba(33,27,22,0.2); background:transparent; padding:2px 0; flex:1; min-width:220px;">
+            <div style="font-size:13px; color:#6b625a; white-space:nowrap;">{{ campaniaPct }}% completado</div>
+          </div>
+          <div style="height:10px; border-radius:6px; background:#EFE7D7; overflow:hidden; margin-bottom:14px;">
+            <div style="height:100%; width:{{ campaniaPct }}%; background:linear-gradient(90deg, var(--oro,#A8843C), var(--granate,#6E1423)); border-radius:6px; transition:width 0.4s ease;"></div>
+          </div>
+          <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+            <div><div style="font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:4px;">Recaudado (€)</div><input value="{{ campania.recaudado }}" onChange="{{ campania.onRecaudado }}" style="width:110px; height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+            <div style="color:#9a8f80;">de</div>
+            <div><div style="font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:4px;">Objetivo (€)</div><input value="{{ campania.objetivo }}" onChange="{{ campania.onObjetivo }}" style="width:110px; height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+            <div style="font-size:11px; color:#9a8f80; margin-left:auto; max-width:220px;">Este mismo dato es el que ven los hermanos en su Resumen.</div>
+          </div>
+        </div>
+
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; padding:22px; margin-bottom:20px;">
+          <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--granate,#6E1423); margin-bottom:6px;">Donativo público — Stripe y Bizum</div>
+          <p style="font-size:13px; color:#6b625a; margin:0 0 14px; line-height:1.6;">Un <strong>Stripe Payment Link</strong> (Dashboard de Stripe, sin backend) para tarjeta, y el número de <strong>Bizum</strong> de la Hermandad para donativos rápidos — en España se dona más por Bizum que por tarjeta en importes pequeños. Ambos alimentarán el botón «Donar» de la web pública.</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+            <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Stripe Payment Link</div><input value="{{ stripeDonarLink }}" onChange="{{ onStripeDonarLink }}" placeholder="https://buy.stripe.com/…" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:13.5px;"></div>
+            <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Número de Bizum</div><input value="{{ bizumNumero }}" onChange="{{ onBizumNumero }}" placeholder="623 200 617" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:13.5px;"></div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- COMUNICADOS -->
+      <sc-if value="{{ aTabComunicados }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:16px; padding:24px;">
+        <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--granate,#6E1423); margin-bottom:4px;">Enviar comunicado</div>
+        <div style="font-size:13px; color:#6b625a; margin-bottom:16px;">Notifica a todos los hermanos por correo (convocatorias, cultos, avisos), o solo a quien tiene un recibo pendiente.</div>
+        <div onClick="{{ prellenarRecordatorio }}" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; padding:9px 16px; margin-bottom:18px; border-radius:20px; border:1px solid var(--oro,#A8843C); color:var(--granate,#6E1423); font-size:12px; font-weight:700;">⏰ Recordatorio de cuota pendiente ({{ pendientesCount }})</div>
+        <input value="{{ comAsunto }}" onChange="{{ onComAsunto }}" placeholder="Asunto" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; margin-bottom:14px;">
+        <textarea value="{{ comMensaje }}" onChange="{{ onComMensaje }}" rows="5" placeholder="Escribe el mensaje…" style="width:100%; padding:12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; resize:vertical; margin-bottom:10px;"></textarea>
+        <div style="font-size:12px; color:#8a7d6e; margin-bottom:16px;">{{ comDestLabel }}</div>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div onClick="{{ enviarComunicado }}" style="cursor:pointer; padding:12px 26px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">{{ comEnviarLabel }}</div>
+          <sc-if value="{{ comunicadoEnviado }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px; color:#1F8A5B; font-weight:600;">✓ Comunicado enviado</span></sc-if>
+        </div>
+      </div>
+      </sc-if>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1120,&quot;height&quot;:840},&quot;granate&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#6E1423&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Color&quot;},&quot;oro&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#A8843C&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Color&quot;}}">
+class Component extends DCLogic {
+  // =====================================================================
+  //  PREPARADO PARA SUPABASE
+  //  1) npm i @supabase/supabase-js  (o CDN) y crear el cliente:
+  //       const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  //  2) Login real:      await supabase.auth.signInWithPassword({ email, password })
+  //     Cerrar sesión:   await supabase.auth.signOut()
+  //     Rol del usuario:  columna 'rol' en tabla 'hermanos' ('hermano' | 'admin')
+  //  3) Tablas sugeridas (con Row Level Security: cada hermano solo ve lo suyo):
+  //       hermanos(id, num, nombre, dni, dir, tel, email, iban, rol, alta)
+  //       cuotas(id, hermano_id, anio, concepto, importe, estado, fecha)
+  //       papeletas(id, hermano_id, anio, cuerpo, paso, obs, estado)
+  //       documentos(id, hermano_id, nombre, tipo, url)   // url -> Supabase Storage
+  //  4) Sustituir los métodos db.* de abajo por consultas supabase.from('...').select()
+  //  5) PAGOS CON STRIPE — sí, una hermandad/asociación religiosa puede cobrar
+  //     cuotas y donativos con Stripe (alta como entidad sin ánimo de lucro, CIF + IBAN).
+  //     - Rápido y sin backend: Stripe Payment Links (un enlace por concepto).
+  //     - Recomendado aquí (importe exacto + marcar el recibo pagado solo):
+  //         Edge Function `crear-sesion-pago` en Supabase que llama a
+  //         stripe.checkout.sessions.create({ line_items, mode:'payment',
+  //         success_url, cancel_url, metadata:{ recibo_id, hermano_id } })
+  //         usando la clave secreta (nunca en el frontend).
+  //     - Webhook `stripe-webhook` (Edge Function) escucha checkout.session.completed
+  //       y hace UPDATE cuotas SET estado='Pagado' WHERE id = metadata.recibo_id.
+  //     El modal de "Pagar" de abajo ya tiene el flujo/UI listo: sustituir
+  //     confirmarPago() por la redirección a la Checkout Session real.
+  // =====================================================================
+
+  state = {
+    view: 'login',            // 'login' | 'hermano' | 'admin'
+    hTab: 'resumen',
+    aTab: 'panel',
+    cTab: 'fotos',
+    editandoNoticia: false,
+    loginEmail: '',
+    loginNote: false,
+    papeletaSolicitada: false,
+    datosGuardados: false,
+    comunicadoEnviado: false,
+    comAsunto: '', comMensaje: '', comDestinatarios: 'todos',
+    pagoAbierto: null,
+    pagoProcesando: false,
+    pagoMetodo: 'tarjeta',
+    metodoPickerFor: null,
+    remesaGenerada: false,
+    donativoFormOpen: false,
+    dform: { nombre:'', concepto:'', importe:'', metodo:'Efectivo' },
+    stripeDonarLink: '',
+    bizumNumero: '623 200 617',
+    campania: { titulo:'Restauración del paso de palio', objetivo:'5000', recaudado:'3200' },
+    donativos: [
+      { nombre:'Antonia Ruiz Vela', concepto:'Restauración del paso de palio', importe:'150,00 €', metodo:'Transferencia', fecha:'03/02/2026', hermanoNum:null },
+      { nombre:'Rafael Valencia Ortega', concepto:'Donativo Caridad', importe:'50,00 €', metodo:'Efectivo · Casa Hermandad', fecha:'21/01/2026', hermanoNum:'432' },
+      { nombre:'José María Ruiz Delgado', concepto:'Donativo Cultos', importe:'25,00 €', metodo:'Bizum', fecha:'15/01/2026', hermanoNum:'428' },
+    ],
+    pendientes: [
+      { nombre:'Francisco Peña Montiel (nº 430)', concepto:'Cuota anual 2026', importe:'30,00 €' },
+      { nombre:'Lucía Casasola Abad (nº 433)', concepto:'Cuota anual 2026', importe:'30,00 €' },
+      { nombre:'José María Ruiz Delgado (nº 428)', concepto:'Aportación Casa Hermandad', importe:'20,00 €' },
+    ],
+    recibos: [
+      { concepto:'Cuota anual 2026', detalle:'Domiciliada · 31/01/2026', importe:'30,00 €', estado:'Pagado', pagable:false, descargable:true },
+      { concepto:'Cuota anual 2025', detalle:'Domiciliada · 31/01/2025', importe:'30,00 €', estado:'Pagado', pagable:false, descargable:true },
+      { concepto:'Cuota anual 2024', detalle:'Domiciliada · 31/01/2024', importe:'28,00 €', estado:'Pagado', pagable:false, descargable:true },
+      { concepto:'Aportación Casa Hermandad', detalle:'Extraordinaria · 2026', importe:'20,00 €', estado:'Pendiente', pagable:true, descargable:false },
+    ],
+    hermano: {
+      num: '428', nombre: 'José María Ruiz Delgado', dni: '75.xxx.xxx-A',
+      dir: 'Calle Real, 12 · La Línea de la Concepción', tel: '600 123 456',
+      email: 'josemaria@ejemplo.com', iban: 'ES91 XXXX XXXX XX XXXXXXXXXX',
+      estado: 'Al corriente', cuotaAnual: '30,00 €', mensual: '2,50 €',
+    },
+  };
+
+  // ---- Capa de datos (hoy mock; mañana Supabase) ----
+  db = {
+    censo: () => ([
+      { num:'428', nombre:'José María Ruiz Delgado', desde:'Desde 1998', estado:'Al corriente' },
+      { num:'429', nombre:'Ana Belén Corbacho Ruiz', desde:'Desde 2001', estado:'Al corriente' },
+      { num:'430', nombre:'Francisco Peña Montiel', desde:'Desde 2010', estado:'Pendiente' },
+      { num:'431', nombre:'María del Mar Gil Heatley', desde:'Desde 2015', estado:'Al corriente' },
+      { num:'432', nombre:'Rafael Valencia Ortega', desde:'Desde 1989', estado:'Al corriente' },
+      { num:'433', nombre:'Lucía Casasola Abad', desde:'Desde 2020', estado:'Pendiente' },
+    ]),
+    pendientes: () => ([
+      { nombre:'Francisco Peña Montiel (nº 430)', concepto:'Cuota anual 2026', importe:'30,00 €' },
+      { nombre:'Lucía Casasola Abad (nº 433)', concepto:'Cuota anual 2026', importe:'30,00 €' },
+      { nombre:'José María Ruiz Delgado (nº 428)', concepto:'Aportación Casa Hermandad', importe:'20,00 €' },
+    ]),
+  };
+
+  abrirMetodo(i) { this.setState({ metodoPickerFor:i }); }
+  // Registrar el método real cierra el círculo de las 3 vías de cobro:
+  // Stripe (webhook automático), Domiciliación (conciliar tras la remesa SEPA)
+  // y Efectivo en Casa Hermandad (la Secretaría lo marca a mano). Las tres
+  // acaban en la misma fila: UPDATE cuotas SET estado, metodo_pago.
+  marcarPagado(i, metodo) {
+    this.setState(s => {
+      const pendientes = s.pendientes.slice();
+      pendientes.splice(i, 1);
+      return { pendientes, metodoPickerFor:null };
+    });
+  }
+  generarRemesa() { this.setState({ remesaGenerada:true }); }
+
+  abrirDonativo() { this.setState({ donativoFormOpen:true, dform:{ nombre:'', concepto:'', importe:'', metodo:'Efectivo' } }); }
+  cerrarDonativo() { this.setState({ donativoFormOpen:false }); }
+  setDform(k, v) { this.setState(s => ({ dform:{ ...s.dform, [k]:v } })); }
+  guardarDonativo() {
+    this.setState(s => {
+      const hoy = new Date().toLocaleDateString('es-ES');
+      const importe = s.dform.importe ? (String(s.dform.importe).replace(',', '.').match(/[\d.]+/) ? Number(String(s.dform.importe).replace(',', '.')).toFixed(2).replace('.', ',') + ' €' : s.dform.importe) : '0,00 €';
+      // Si el nombre coincide con un hermano del censo, el donativo queda
+      // enlazado a su ficha y le aparece en "Mis donativos" del Portal.
+      const match = this.db.censo().find(c => c.nombre.trim().toLowerCase() === String(s.dform.nombre||'').trim().toLowerCase());
+      const nuevo = { nombre: s.dform.nombre || 'Anónimo', concepto: s.dform.concepto || 'Donativo', importe, metodo: s.dform.metodo, fecha: hoy, hermanoNum: match ? match.num : null };
+      return { donativos:[nuevo, ...s.donativos], donativoFormOpen:false };
+    });
+  }
+  quitarDonativo(i) { this.setState(s => ({ donativos: s.donativos.filter((_,j)=>j!==i) })); }
+  setStripeDonarLink(v) { this.setState({ stripeDonarLink:v }); }
+  setBizumNumero(v) { this.setState({ bizumNumero:v }); }
+  setCampania(k, v) { this.setState(s => ({ campania:{ ...s.campania, [k]:v } })); }
+  prellenarRecordatorio() {
+    const n = this.state.pendientes.length;
+    this.setState({
+      comDestinatarios: 'pendientes', comunicadoEnviado:false,
+      comAsunto: 'Recordatorio: cuota pendiente de pago',
+      comMensaje: 'Estimado hermano/a,\n\nTe recordamos que tienes un recibo pendiente de pago. Puedes abonarlo desde el Portal del Hermano (tarjeta o Bizum), por domiciliación bancaria o en persona en la Casa Hermandad.\n\nUn saludo,\nSecretaría de la Hermandad',
+    });
+  }
+
+  componentDidMount() {
+    try {
+      const modo = new URLSearchParams(window.location.search).get('modo');
+      if (modo === 'hermano' || modo === 'admin') this.setView(modo);
+    } catch(e) {}
+  }
+
+  setView(v) { this.setState({ view:v, hTab:'resumen', aTab:'panel' }); try{ document.documentElement.scrollTop=0; document.body.scrollTop=0; }catch(e){} }
+  setDato(k, v) { this.setState(s => ({ hermano:{ ...s.hermano, [k]:v }, datosGuardados:false })); }
+
+  abrirPago(i) { this.setState({ pagoAbierto:i, pagoProcesando:false, pagoMetodo:'tarjeta' }); }
+  cerrarPago() { this.setState({ pagoAbierto:null, pagoProcesando:false }); }
+  setPagoMetodo(m) { this.setState({ pagoMetodo:m }); }
+  confirmarPago() {
+    if (this.state.pagoProcesando) return;
+    this.setState({ pagoProcesando:true });
+    // TODO Stripe: sustituir esta simulación por la redirección a la Checkout
+    // Session creada por la Edge Function (ver notas de Stripe más arriba).
+    // El Bizum, al no tener webhook propio aquí, seguirá conciliándose a mano
+    // (mismo botón "Marcar pagado" del panel admin) hasta ver el ingreso.
+    this._pagoTimer = setTimeout(() => {
+      this.setState(s => {
+        if (s.pagoAbierto == null) return null;
+        const recibos = s.recibos.slice();
+        const metodoTxt = s.pagoMetodo === 'bizum' ? 'Bizum' : 'Tarjeta · Stripe';
+        recibos[s.pagoAbierto] = { ...recibos[s.pagoAbierto], estado:'Pagado', pagable:false, descargable:true, detalle: metodoTxt + ' · ' + new Date().toLocaleDateString('es-ES') };
+        return { recibos, pagoAbierto:null, pagoProcesando:false, pagoMetodo:'tarjeta' };
+      });
+    }, 1100);
+  }
+
+  renderVals() {
+    const granate = this.props.granate ?? '#6E1423';
+    const oro = this.props.oro ?? '#A8843C';
+    const v = this.state.view;
+    const h = this.state.hermano;
+
+    const hTab = (label, key) => ({ label, onClick:()=>this.setState({ hTab:key }),
+      bg: this.state.hTab===key ? granate : '#FBF8F1',
+      fg: this.state.hTab===key ? '#F0E6D6' : '#4a4038' });
+    const aTab = (label, key) => ({ label, onClick:()=>this.setState({ aTab:key }),
+      bg: this.state.aTab===key ? granate : '#FBF8F1',
+      fg: this.state.aTab===key ? '#F0E6D6' : '#4a4038' });
+
+    const est = (estado) => estado==='Pagado' || estado==='Al corriente'
+      ? { estBg:'rgba(31,138,91,0.14)', estFg:'#1F8A5B' }
+      : { estBg:'rgba(168,132,60,0.20)', estFg:'#8a6a20' };
+
+    return {
+      granate, oro, h, anio:'2026',
+      isLogin: v==='login', isHermano: v==='hermano', isAdmin: v==='admin',
+
+      // login
+      loginEmail: this.state.loginEmail,
+      onLoginEmail: (e)=>this.setState({ loginEmail:e.target.value }),
+      loginNote: this.state.loginNote,
+      doSignIn: ()=>this.setState({ loginNote:true }),   // TODO: supabase.auth.signInWithPassword
+      demoHermano: ()=>this.setView('hermano'),
+      demoAdmin: ()=>this.setView('admin'),
+      logout: ()=>this.setView('login'),                  // TODO: supabase.auth.signOut
+
+      // hermano tabs
+      hermanoTabs: [ hTab('Resumen','resumen'), hTab('Mis cuotas','cuotas'), hTab('Mis donativos','donativos'), hTab('Papeleta de sitio','papeleta'), hTab('Mis datos','datos'), hTab('Documentos','docs') ],
+      hTabResumen: this.state.hTab==='resumen', hTabCuotas: this.state.hTab==='cuotas',
+      hTabMisDonativos: this.state.hTab==='donativos',
+      hTabPapeleta: this.state.hTab==='papeleta', hTabDatos: this.state.hTab==='datos', hTabDocs: this.state.hTab==='docs',
+      goCuotas: ()=>this.setState({ hTab:'cuotas' }), goPapeleta: ()=>this.setState({ hTab:'papeleta' }), goDatos: ()=>this.setState({ hTab:'datos' }),
+
+      avisos: [
+        { titulo:'Convocatoria de Cabildo General', detalle:'26 de marzo · 19:00 h · Casa Hermandad' },
+        { titulo:'Reparto de papeletas de sitio', detalle:'Del 1 al 15 de marzo en la Casa Hermandad' },
+      ],
+      campania: {
+        titulo: this.state.campania.titulo, objetivo: this.state.campania.objetivo, recaudado: this.state.campania.recaudado,
+        onTitulo: (e)=>this.setCampania('titulo', e.target.value),
+        onObjetivo: (e)=>this.setCampania('objetivo', e.target.value),
+        onRecaudado: (e)=>this.setCampania('recaudado', e.target.value),
+      },
+      campaniaPct: Math.max(0, Math.min(100, Math.round((parseFloat(this.state.campania.recaudado||0) / (parseFloat(this.state.campania.objetivo||0) || 1)) * 100))),
+      misDonativos: this.state.donativos.filter(d => d.hermanoNum === h.num),
+      sinMisDonativos: this.state.donativos.filter(d => d.hermanoNum === h.num).length === 0,
+      recibos: this.state.recibos.map((r, i) => ({ ...r, ...est(r.estado), onPagar:()=>this.abrirPago(i) })),
+      pagoOpen: this.state.pagoAbierto != null,
+      pagoProcesando: this.state.pagoProcesando,
+      pagoRecibo: this.state.pagoAbierto != null ? this.state.recibos[this.state.pagoAbierto] : { concepto:'', importe:'' },
+      pagoBtnLabel: this.state.pagoProcesando ? 'Procesando…' : (this.state.pagoMetodo === 'bizum' ? 'Ya he hecho el Bizum' : ('Pagar ' + ((this.state.pagoAbierto != null && this.state.recibos[this.state.pagoAbierto]) ? this.state.recibos[this.state.pagoAbierto].importe : ''))),
+      esTarjeta: this.state.pagoMetodo === 'tarjeta', esBizum: this.state.pagoMetodo === 'bizum',
+      setPagoTarjeta: ()=>this.setPagoMetodo('tarjeta'), setPagoBizum: ()=>this.setPagoMetodo('bizum'),
+      tarjetaBg: this.state.pagoMetodo==='tarjeta' ? granate : '#EFE7D7', tarjetaFg: this.state.pagoMetodo==='tarjeta' ? '#F0E6D6' : '#4a4038',
+      bizumBg: this.state.pagoMetodo==='bizum' ? granate : '#EFE7D7', bizumFg: this.state.pagoMetodo==='bizum' ? '#F0E6D6' : '#4a4038',
+      trustLine: this.state.pagoMetodo==='bizum' ? '🔒 Confirmaremos el ingreso por Bizum en unas horas' : '🔒 Pago seguro procesado por Stripe',
+      bizumNumero: this.state.bizumNumero,
+      cerrarPago: ()=>this.cerrarPago(),
+      confirmarPago: ()=>this.confirmarPago(),
+
+      papeletaSolicitada: this.state.papeletaSolicitada,
+      papeletaForm: !this.state.papeletaSolicitada,
+      solicitarPapeleta: ()=>this.setState({ papeletaSolicitada:true }),
+
+      onDatoNombre:(e)=>this.setDato('nombre',e.target.value), onDatoDni:(e)=>this.setDato('dni',e.target.value),
+      onDatoDir:(e)=>this.setDato('dir',e.target.value), onDatoTel:(e)=>this.setDato('tel',e.target.value),
+      onDatoEmail:(e)=>this.setDato('email',e.target.value), onDatoIban:(e)=>this.setDato('iban',e.target.value),
+      guardarDatos: ()=>this.setState({ datosGuardados:true }),  // TODO: supabase.from('hermanos').update(...)
+      datosGuardados: this.state.datosGuardados,
+
+      documentos: [
+        { nombre:'Recibo cuota 2026', meta:'PDF · 84 KB' },
+        { nombre:'Certificado de hermano', meta:'PDF · emitido 12/02/2026' },
+        { nombre:'Papeleta de sitio 2025', meta:'PDF · Miércoles Santo' },
+      ],
+
+      // admin
+      navPrincipal: [
+        { label:'Panel', icon:'📊', key:'panel' },
+        { label:'Contenido web', icon:'🖼️', key:'contenido' },
+      ].map(i=>({ ...i, onClick:()=>this.setState({aTab:i.key}), bg:this.state.aTab===i.key?'rgba(213,172,99,0.18)':'transparent', fg:this.state.aTab===i.key?'#F3E4C6':'rgba(232,219,198,0.82)' })),
+      navGestion: [
+        { label:'Hermanos', icon:'👥', key:'hermanos' },
+        { label:'Cuotas', icon:'💳', key:'cuotas' },
+        { label:'Donativos', icon:'🎁', key:'donativos' },
+        { label:'Comunicados', icon:'📣', key:'comunicados' },
+      ].map(i=>({ ...i, onClick:()=>this.setState({aTab:i.key}), bg:this.state.aTab===i.key?'rgba(213,172,99,0.18)':'transparent', fg:this.state.aTab===i.key?'#F3E4C6':'rgba(232,219,198,0.82)' })),
+      aTitulo: ({ panel:'Panel general', contenido:'Contenido web', hermanos:'Hermanos', cuotas:'Cuotas y recibos', donativos:'Donativos', comunicados:'Comunicados' })[this.state.aTab] || 'Administración',
+      aTabPanel: this.state.aTab==='panel', aTabContenido: this.state.aTab==='contenido', aTabHermanos: this.state.aTab==='hermanos',
+      aTabCuotas: this.state.aTab==='cuotas', aTabDonativos: this.state.aTab==='donativos', aTabComunicados: this.state.aTab==='comunicados',
+      contenidoTabs: [
+        { label:'Fotos de portada', key:'fotos' }, { label:'Actualidad', key:'actualidad' },
+        { label:'Cultos', key:'cultos' }, { label:'Páginas y textos', key:'textos' }, { label:'Boletines', key:'boletines' },
+      ].map(t => ({ ...t, onClick:()=>this.setState({ cTab:t.key }),
+        bg: this.state.cTab===t.key ? granate : '#FBF8F1',
+        fg: this.state.cTab===t.key ? '#F0E6D6' : '#4a4038' })),
+      cTabFotos: this.state.cTab==='fotos', cTabActualidad: this.state.cTab==='actualidad',
+      cTabCultos: this.state.cTab==='cultos', cTabTextos: this.state.cTab==='textos', cTabBoletines: this.state.cTab==='boletines',
+
+      editandoNoticia: this.state.editandoNoticia,
+      nuevaNoticia: () => this.setState({ editandoNoticia:true }),
+      cerrarNoticia: () => this.setState({ editandoNoticia:false }),
+
+      cHeroFotos: [
+        { n:1, bg:"url('https://hermandadamargura.es/images/1200x630/20811590/Imagen031-JE_blfZGG-PeVbef1zBsMA.jpg')" },
+        { n:2, bg:"url('https://hermandadamargura.es/images/1024/16917111/IMG-20160128-WA0001_Original-M4UCvUmwP9swcc0izOWZxg.JPG')" },
+        { n:3, bg:"url('https://hermandadamargura.es/images/872/16995418/VirgenAmargura-Ukbvn4YNOhOBJBgmdlscTg.jpg')" },
+        { n:4, bg:"url('https://hermandadamargura.es/images/1024/17115483/WhatsApp-Image-2025-06-15-at-20.32.59-5i_7AiY1W2cA7rp5OVoxcQ.jpeg')" },
+        { n:5, bg:"url('https://hermandadamargura.es/images/1024/16997304/juntajovenbie_-bIOsYt1ybwmzYgcmSk94Dw.JPG')" },
+      ],
+      cNoticias: [
+        { titulo:'I Torrijada Solidaria', fecha:'14 Marzo 2026', estado:'Publicada', estBg:'rgba(31,138,91,0.14)', estFg:'#1F8A5B', bg:"url('https://hermandadamargura.es/images/971/24031242/Capturadepantalla2026-03-14alas2.08.53-hkPjXdtl5ecnY1HkO24LcQ.png')" },
+        { titulo:'Procesión del Santísimo Sacramento', fecha:'21 Junio 2025', estado:'Publicada', estBg:'rgba(31,138,91,0.14)', estFg:'#1F8A5B', bg:"url('https://hermandadamargura.es/images/1024/17115483/WhatsApp-Image-2025-06-15-at-20.32.59-5i_7AiY1W2cA7rp5OVoxcQ.jpeg')" },
+        { titulo:'Convocatoria de Cabildo General', fecha:'02 Febrero 2026', estado:'Borrador', estBg:'rgba(168,132,60,0.18)', estFg:'#8a6a20', bg:"url('https://hermandadamargura.es/images/1024/16997712/0694d45a-540d-47ce-b14d-1160f495349d-6lNBMDaS5u60cc2w3hQHlg.JPG')" },
+        { titulo:'70 aniversario fundacional', fecha:'15 Febrero 2025', estado:'Publicada', estBg:'rgba(31,138,91,0.14)', estFg:'#1F8A5B', bg:"url('https://hermandadamargura.es/images/1024/16917111/IMG-20160128-WA0001_Original-M4UCvUmwP9swcc0izOWZxg.JPG')" },
+      ],
+      cCultos: [
+        { dia:'12', mes:'Jul', titulo:'Misa de Hermandad', detalle:'Primer viernes · 20:30 h · Santuario' },
+        { dia:'15', mes:'Ago', titulo:'Solemne Función a la Virgen', detalle:'12:00 h · Sede canónica' },
+        { dia:'26', mes:'Mar', titulo:'Cabildo General Extraordinario', detalle:'19:00 h · Casa Hermandad' },
+        { dia:'02', mes:'Abr', titulo:'Estación de Penitencia', detalle:'Miércoles Santo · Salida' },
+      ],
+      cPaginas: [
+        { icon:'✝️', nombre:'Sagrados Titulares', meta:'Texto + 2 fotos' },
+        { icon:'📜', nombre:'Historia', meta:'Texto largo + fotos' },
+        { icon:'⚖️', nombre:'Junta de Gobierno', meta:'Listado + foto' },
+        { icon:'⛪', nombre:'Sede Canónica', meta:'Texto + mapa' },
+        { icon:'🏠', nombre:'Casa Hermandad', meta:'Texto + foto' },
+        { icon:'🛡️', nombre:'Heráldica', meta:'Texto + escudo' },
+        { icon:'❤️', nombre:'Caridad', meta:'Texto + foto' },
+        { icon:'🌿', nombre:'Grupo Joven', meta:'Texto + foto' },
+      ],
+      cBoletines: [
+        { titulo:'Boletín 2025', meta:'Cuaresma · 24 páginas' },
+        { titulo:'Boletín 2024', meta:'Cuaresma · 20 páginas' },
+        { titulo:'Boletín 2023', meta:'Cuaresma · 20 páginas' },
+        { titulo:'Especial 70 aniversario', meta:'1955–2025' },
+      ],
+      stats: [
+        { valor:'912', label:'Hermanos activos' },
+        { valor:'87 %', label:'Cuotas al corriente' },
+        { valor:String(this.state.pendientes.length), label:'Recibos pendientes' },
+        { valor:'27.360 €', label:'Recaudado 2026' },
+      ],
+      censo: this.db.censo().map(c => ({ ...c, ...est(c.estado) })),
+      pendientes: this.state.pendientes.map((p, i) => ({
+        ...p,
+        metodoOpen: this.state.metodoPickerFor === i,
+        metodoClosed: this.state.metodoPickerFor !== i,
+        onAbrir: () => this.abrirMetodo(i),
+        onDomiciliacion: () => this.marcarPagado(i, 'Domiciliación'),
+        onEfectivo: () => this.marcarPagado(i, 'Efectivo · Casa Hermandad'),
+        onTarjeta: () => this.marcarPagado(i, 'Tarjeta'),
+        onBizum: () => this.marcarPagado(i, 'Bizum'),
+      })),
+      sinPendientes: this.state.pendientes.length === 0,
+      remesaGenerada: this.state.remesaGenerada,
+      generarRemesa: () => this.generarRemesa(),
+
+      donativoFormOpen: this.state.donativoFormOpen,
+      abrirDonativo: () => this.abrirDonativo(),
+      cerrarDonativo: () => this.cerrarDonativo(),
+      guardarDonativo: () => this.guardarDonativo(),
+      dform: {
+        nombre: this.state.dform.nombre, concepto: this.state.dform.concepto,
+        importe: this.state.dform.importe, metodo: this.state.dform.metodo,
+        onNombre: (e)=>this.setDform('nombre', e.target.value),
+        onConcepto: (e)=>this.setDform('concepto', e.target.value),
+        onImporte: (e)=>this.setDform('importe', e.target.value),
+        onMetodo: (e)=>this.setDform('metodo', e.target.value),
+      },
+      donativos: this.state.donativos.map((d, i) => ({ ...d, nombreMostrado: d.hermanoNum ? (d.nombre + ' (nº ' + d.hermanoNum + ')') : d.nombre, onQuitar: () => this.quitarDonativo(i) })),
+      totalDonativos: this.state.donativos.reduce((sum, d) => sum + (parseFloat(String(d.importe).replace(/[^\d,.-]/g,'').replace(',', '.')) || 0), 0).toFixed(2).replace('.', ',') + ' €',
+      censoNombres: this.db.censo().map(c => c.nombre),
+      stripeDonarLink: this.state.stripeDonarLink,
+      onStripeDonarLink: (e) => this.setStripeDonarLink(e.target.value),
+      onBizumNumero: (e) => this.setBizumNumero(e.target.value),
+      comAsunto: this.state.comAsunto, onComAsunto: (e)=>this.setState({ comAsunto:e.target.value }),
+      comMensaje: this.state.comMensaje, onComMensaje: (e)=>this.setState({ comMensaje:e.target.value }),
+      prellenarRecordatorio: ()=>this.prellenarRecordatorio(),
+      pendientesCount: this.state.pendientes.length,
+      comEnviarLabel: this.state.comDestinatarios==='pendientes' ? ('Enviar a ' + this.state.pendientes.length + ' pendientes') : 'Enviar a todos los hermanos',
+      comDestLabel: this.state.comDestinatarios==='pendientes' ? ('Se enviará solo a los ' + this.state.pendientes.length + ' hermanos con recibo pendiente.') : 'Se enviará a todos los hermanos.',
+      enviarComunicado: ()=>this.setState({ comunicadoEnviado:true }),
+      comunicadoEnviado: this.state.comunicadoEnviado,
+    };
+  }
+}
+</script>
+</body>
+</html>
