@@ -8,7 +8,7 @@
   window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcXBmemt1eWF3bWllb25ha3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDMyNTcsImV4cCI6MjEwMjQxOTI1N30.iM8Vq_5RTi7jDp7qL0oPNvYxQmKNH0JsEMg1zpGAv_0';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-api.js?v=6"></script>
+<script src="./supabase-api.js?v=7"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -19,7 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="https://hermandadamargura.es/images/434/16915422/Logo_Amargura-removebg-preview-NoRkZKT-R2FuU_xwnzr-7g.png">
 <style>
-  html, body { margin:0; padding:0; background:#F5F0E6; }
+  html, body { max-width:100%; overflow-x:hidden; margin:0; padding:0; background:#F5F0E6; }
   * { box-sizing:border-box; }
   a { color:inherit; text-decoration:none; }
   a.link { color:#6E1423; text-decoration:underline; text-underline-offset:2px; }
@@ -619,7 +619,9 @@ class Component extends DCLogic {
   state = {
     page:'inicio', menu:false, mobileMenu:false, hermanoSent:false, contactoSent:false,
     jovenSent:false, noticiaIdx:0,
-    heroIndex:0, isMobile:(typeof window!=='undefined' && window.innerWidth<760),
+    heroIndex:0,
+    isMobile:(typeof window!=='undefined' && window.innerWidth<760),
+    isNarrow:(typeof window!=='undefined' && window.innerWidth<1080),
     hero: [
       'https://hermandadamargura.es/images/1200x630/20811590/Imagen031-JE_blfZGG-PeVbef1zBsMA.jpg',
       'https://hermandadamargura.es/images/1024/16917111/IMG-20160128-WA0001_Original-M4UCvUmwP9swcc0izOWZxg.JPG',
@@ -702,7 +704,10 @@ class Component extends DCLogic {
     this._heroTimer = setInterval(() => {
       this.setState(s => ({ heroIndex: (s.heroIndex + 1) % s.hero.length }));
     }, 5000);
-    this._onResize = () => this.setState({ isMobile: window.innerWidth < 760 });
+    this._onResize = () => this.setState({
+      isMobile: window.innerWidth < 760,
+      isNarrow: window.innerWidth < 1080,
+    });
     window.addEventListener('resize', this._onResize);
   }
   componentWillUnmount() {
@@ -731,11 +736,11 @@ class Component extends DCLogic {
       heroMinHeight: cols('380px','500px'),
       menuOpen: this.state.menu,
       toggleMenu: () => this.setState(s => ({ menu: !s.menu })),
-      showMobileMenu: isMobile && this.state.mobileMenu,
+      showMobileMenu: this.state.isNarrow && this.state.mobileMenu,
       toggleMobileMenu: () => this.setState(s => ({ mobileMenu: !s.mobileMenu })),
-      navRowDisplay: cols('none','flex'),
-      hamburgerDisplay: cols('flex','none'),
-      portalBtnDisplay: cols('none','inline-block'),
+      navRowDisplay: this.state.isNarrow ? 'none' : 'flex',
+      hamburgerDisplay: this.state.isNarrow ? 'flex' : 'none',
+      portalBtnDisplay: this.state.isNarrow ? 'none' : 'inline-block',
       fabRight: cols('14px','26px'), fabBottom: cols('14px','26px'),
       fabPad: cols('13px 22px','16px 30px'), fabFont: cols('11.5px','13px'),
 
