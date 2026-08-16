@@ -1616,7 +1616,7 @@ class Component extends DCLogic {
       return;
     }
     if (!this.conectado) {
-      this.setState({ loginError: 'La base de datos aún no está conectada. Usa los accesos de demostración de abajo.' });
+      this.setState({ loginError: 'La base de datos no está configurada (falta supabase-config.js junto a esta página). Usa los accesos de demostración de abajo.' });
       return;
     }
 

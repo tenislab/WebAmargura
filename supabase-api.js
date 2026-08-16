@@ -12,11 +12,30 @@
 // ============================================================================
 
 (function () {
-  const URL_ = window.SUPABASE_URL || '';
-  const KEY_ = window.SUPABASE_ANON_KEY || '';
-  const activo = !!(URL_ && KEY_ && window.supabase);
+  // La URL debe ser la raíz del proyecto, sin /rest/v1 ni barra final.
+  const URL_ = String(window.SUPABASE_URL || '').trim().replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
+  const KEY_ = String(window.SUPABASE_ANON_KEY || '').trim();
 
-  const sb = activo ? window.supabase.createClient(URL_, KEY_) : null;
+  // Con URL y clave rellenas ya estamos "conectados": si la librería de
+  // Supabase todavía no ha llegado (CDN lenta o bloqueada), se carga sola.
+  const activo = !!(URL_ && KEY_);
+
+  let sb = null;
+
+  function cargarSDK() {
+    if (window.supabase && window.supabase.createClient) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('No se ha podido cargar la librería de Supabase.'));
+      document.head.appendChild(s);
+    });
+  }
+
+  const listo = !activo ? Promise.resolve(false) : cargarSDK()
+    .then(() => { sb = window.supabase.createClient(URL_, KEY_); return true; })
+    .catch(err => { console.error('[Amargura]', err); return false; });
 
   // Fecha en formato español para los detalles de recibo
   const hoy = () => new Date().toLocaleDateString('es-ES');
@@ -317,7 +336,19 @@
     },
   };
 
-  window.API = API;
+  // Cada método espera a que el cliente esté creado antes de ejecutarse.
+  const APIListo = {};
+  Object.keys(API).forEach(k => {
+    const v = API[k];
+    APIListo[k] = (typeof v === 'function')
+      ? function () { const args = arguments; return listo.then(() => v.apply(API, args)); }
+      : v;
+  });
+  Object.defineProperty(APIListo, 'sb', { get: () => sb });
+  APIListo.activo = activo;
+  APIListo.listo = listo;
+
+  window.API = APIListo;
 
   if (!activo) {
     console.info(
