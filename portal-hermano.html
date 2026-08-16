@@ -8,7 +8,7 @@
   window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcXBmemt1eWF3bWllb25ha3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDMyNTcsImV4cCI6MjEwMjQxOTI1N30.iM8Vq_5RTi7jDp7qL0oPNvYxQmKNH0JsEMg1zpGAv_0';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-api.js?v=13"></script>
+<script src="./supabase-api.js?v=14"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -1650,6 +1650,7 @@ class Component extends DCLogic {
       try {
         const yo = await window.API.yo();
         if (yo) {
+          this._esAdmin = yo.rol === 'admin';
           this.setState({
             sesionAbierta: yo,
             view: 'login',   // no entramos solos: que elija
@@ -1762,7 +1763,7 @@ class Component extends DCLogic {
       }
 
       // Si la tabla de noticias está vacía, se siembran solas la primera vez
-      if (noticias && noticias.length === 0 && !this._sembrado && this.state.view === 'admin') {
+      if (noticias && noticias.length === 0 && !this._sembrado && this._esAdmin) {
         this._sembrado = true;
         this.setState({ cargando:false });
         return this.sembrarNoticias();
@@ -1824,6 +1825,7 @@ class Component extends DCLogic {
         },
       });
 
+      this._esAdmin = yo.rol === 'admin';
       this.cargarTodo();
 
       if (yo.debe_cambiar_password) {
@@ -2196,6 +2198,8 @@ class Component extends DCLogic {
       continuarSesion: () => {
         const yo = this.state.sesionAbierta;
         if (!yo) return;
+        this._esAdmin = yo.rol === 'admin';
+        if (this.state.noticias.length === 0) this.cargarTodo();
         this.setState({
           view: yo.rol === 'admin' ? 'admin' : 'hermano',
           hermano: {
