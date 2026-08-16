@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
-  /* Claves de Supabase incrustadas: así funcionan aunque el navegador tenga
-     en caché una versión antigua de los scripts. */
+  /* Claves de Supabase incrustadas: funcionan aunque el navegador tenga en
+     caché una versión antigua de los scripts. */
   window.SUPABASE_URL = 'https://aeqpfzkuyawmieonakvo.supabase.co';
   window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcXBmemt1eWF3bWllb25ha3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDMyNTcsImV4cCI6MjEwMjQxOTI1N30.iM8Vq_5RTi7jDp7qL0oPNvYxQmKNH0JsEMg1zpGAv_0';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-api.js?v=4"></script>
+<script src="./supabase-api.js?v=5"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -1356,21 +1356,22 @@ class Component extends DCLogic {
   abrirAlta() { this.setState({ altaOpen:true, cred:null, credEnviado:false, af:{ nombre:'', num:String(1000 + Math.floor(Math.random()*900)), dni:'', email:'' } }); }
   cerrarAlta() { this.setState({ altaOpen:false }); }
   crearAcceso(num) {
-    this.setState(s => {
-      const c = s.censo.find(x => x.num === num);
-      if (!c) return null;
-      const dni = (c.dni || '').toUpperCase().trim();
-      if (!dni) { alert('Este hermano no tiene DNI registrado. Añádelo primero en su ficha para poder crear su acceso.'); return null; }
-      return {
-        censo: s.censo.map(x => x.num === num ? { ...x, acceso:true } : x),
-        cred: { nombre: c.nombre, usuario: dni },
-        credEnviado: false,
-    cargando: false,
-    suplantando: false,
-    errorCarga: '',
-    sesionAbierta: null,
-      };
-    });
+    const c = this.state.censo.find(x => x.num === num);
+    if (!c) return;
+    const dni = (c.dni || '').toUpperCase().trim();
+    if (!dni) { alert('Este hermano no tiene DNI registrado. Añádelo primero en su ficha para poder crear su acceso.'); return; }
+
+    if (this.conectado) {
+      return this.sync(async () => {
+        const r = await window.API.crearAcceso(c.id);
+        this.setState({ cred: { nombre: c.nombre, usuario: r.usuario, pass: r.password_inicial }, credEnviado: false });
+      });
+    }
+    this.setState(s => ({
+      censo: s.censo.map(x => x.num === num ? { ...x, acceso:true } : x),
+      cred: { nombre: c.nombre, usuario: c.email || dni, pass: dni },
+      credEnviado: false,
+    }));
   }
   cerrarCredenciales() { this.setState({ cred:null, credEnviado:false }); }
   // Abre el Portal tal y como lo ve ese hermano (útil para comprobar su estado de cuotas)
@@ -1401,7 +1402,7 @@ class Component extends DCLogic {
         const r = await window.API.altaHermano({ nombre, num, dni, email });
         this.setState({
           altaOpen:false,
-          cred: r && r.password_inicial ? { nombre, usuario: email } : null,
+          cred: r && r.password_inicial ? { nombre, usuario: r.usuario, pass: r.password_inicial } : null,
           credEnviado:false,
         });
       });
@@ -1620,7 +1621,15 @@ class Component extends DCLogic {
 
       if (bizum) nuevo.bizumNumero = bizum;
 
-      nuevo.errorCarga = fallos.length ? ('No se han podido cargar: ' + fallos.join(' · ')) : '';
+      // Comprobación de permisos: sin esto, los cambios se pierden en silencio
+      if (this.state.view === 'admin') {
+        try {
+          const ok = await window.API.soyAdmin();
+          if (!ok) fallos.unshift('tu cuenta NO consta como administradora en la tabla "hermanos" (rol = admin y user_id enlazado), así que la base de datos rechazará todos los cambios');
+        } catch (e) {}
+      }
+
+      nuevo.errorCarga = fallos.length ? ('⚠ ' + fallos.join(' · ')) : '';
       this.setState(nuevo);
     } catch (e) {
       console.error('[Amargura] Error al cargar datos:', e);

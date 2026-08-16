@@ -41,6 +41,21 @@
   const hoy = () => new Date().toLocaleDateString('es-ES');
   const eur = (n) => Number(n).toFixed(2).replace('.', ',') + ' €';
 
+  // Supabase NO da error cuando una escritura no afecta a ninguna fila por
+  // falta de permisos: simplemente no hace nada. Con .select() detectamos ese
+  // caso y avisamos, en vez de dejar al usuario pensando que se ha guardado.
+  function comprobar({ data, error }, queEs) {
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error(
+        'La base de datos ha rechazado el cambio en ' + queEs + '. ' +
+        'Tu cuenta no consta como administradora: revisa que en la tabla ' +
+        '"hermanos" tu ficha tenga rol = admin y user_id enlazado.'
+      );
+    }
+    return data;
+  }
+
   const API = {
     activo,
     sb,
@@ -50,6 +65,13 @@
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
       return data;
+    },
+
+    // ¿La base de datos me reconoce como administrador?
+    async soyAdmin() {
+      const { data, error } = await sb.rpc('es_admin');
+      if (error) throw error;
+      return !!data;
     },
 
     async logout() {
@@ -94,19 +116,70 @@
       return data;
     },
 
-    // Alta de hermano + su acceso al portal (usuario y contraseña = DNI).
-    // OJO: crear usuarios de Auth desde el navegador requiere la clave
-    // service_role, que NO puede estar aquí. Por eso esto llama a una Edge
-    // Function `crear-hermano` que sí la tiene (ver README).
+    // Alta de hermano + su acceso al portal (contraseña inicial = DNI).
+    //
+    // No hace falta ninguna Edge Function: el usuario se crea con el registro
+    // normal de Supabase, pero desde un cliente APARTE (persistSession:false)
+    // para no cerrar la sesión de la Secretaría.
+    //
+    // ⚠️ En Supabase → Authentication → Sign In / Providers → Email,
+    //    desactiva "Confirm email" para que el hermano pueda entrar al momento.
     async altaHermano({ nombre, num, dni, email }) {
-      const { data, error } = await sb.functions.invoke('crear-hermano', {
-        body: { nombre, num, dni, email },
+      const password = String(dni || '').trim();
+      if (!password) throw new Error('Hace falta el DNI: es la contraseña inicial del hermano.');
+      if (!email) throw new Error('Hace falta un correo para poder crear el acceso.');
+
+      // Cliente desechable, sin guardar sesión: no toca la del administrador
+      const aparte = window.supabase.createClient(URL_, KEY_, {
+        auth: { persistSession: false, autoRefreshToken: false },
       });
+
+      const { data: reg, error: errReg } = await aparte.auth.signUp({
+        email, password,
+        options: { data: { nombre, hermano_num: num } },
+      });
+      if (errReg) throw new Error(errReg.message);
+
+      const userId = reg && reg.user ? reg.user.id : null;
+
+      // La ficha del censo la inserta la Secretaría (su sesión sí es admin)
+      const { data: hermano, error } = await sb.from('hermanos').insert({
+        user_id: userId, num, nombre, dni, email,
+        desde: 'Alta ' + new Date().getFullYear(),
+        rol: 'hermano', acceso: !!userId, debe_cambiar_password: true,
+      }).select().single();
       if (error) throw error;
-      return data; // { hermano, usuario, password_inicial }
+
+      return { hermano, usuario: email, password_inicial: password };
     },
 
+    // Da acceso al portal a un hermano que ya está en el censo
     async crearAcceso(hermanoId) {
+      const { data: h, error: e1 } = await sb
+        .from('hermanos').select('*').eq('id', hermanoId).single();
+      if (e1) throw e1;
+      if (!h.dni) throw new Error('Ese hermano no tiene DNI: es la contraseña inicial.');
+      if (!h.email) throw new Error('Ese hermano no tiene correo electrónico.');
+
+      const aparte = window.supabase.createClient(URL_, KEY_, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      const { data: reg, error: errReg } = await aparte.auth.signUp({
+        email: h.email, password: h.dni,
+        options: { data: { nombre: h.nombre, hermano_num: h.num } },
+      });
+      if (errReg) throw new Error(errReg.message);
+
+      const { error: e2 } = await sb.from('hermanos').update({
+        user_id: reg.user ? reg.user.id : null,
+        acceso: true, debe_cambiar_password: true,
+      }).eq('id', hermanoId);
+      if (e2) throw e2;
+
+      return { usuario: h.email, password_inicial: h.dni };
+    },
+
+    async _crearAccesoAntiguo(hermanoId) {
       const { data, error } = await sb.functions.invoke('crear-acceso', {
         body: { hermano_id: hermanoId },
       });
@@ -254,17 +327,14 @@
 
     async guardarNoticia(id, campos) {
       if (id) {
-        const { error } = await sb.from('noticias').update(campos).eq('id', id);
-        if (error) throw error;
+        comprobar(await sb.from('noticias').update(campos).eq('id', id).select(), 'la noticia');
       } else {
-        const { error } = await sb.from('noticias').insert(campos);
-        if (error) throw error;
+        comprobar(await sb.from('noticias').insert(campos).select(), 'la noticia nueva');
       }
     },
 
     async quitarNoticia(id) {
-      const { error } = await sb.from('noticias').delete().eq('id', id);
-      if (error) throw error;
+      comprobar(await sb.from('noticias').delete().eq('id', id).select(), 'el borrado de la noticia');
     },
 
     async cultos() {
