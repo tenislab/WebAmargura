@@ -4,13 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
-  /* Claves de Supabase incrustadas: funcionan aunque el navegador tenga en
-     caché una versión antigua de los scripts. */
   window.SUPABASE_URL = 'https://aeqpfzkuyawmieonakvo.supabase.co';
   window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcXBmemt1eWF3bWllb25ha3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDMyNTcsImV4cCI6MjEwMjQxOTI1N30.iM8Vq_5RTi7jDp7qL0oPNvYxQmKNH0JsEMg1zpGAv_0';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-api.js?v=5"></script>
+<script src="./supabase-api.js?v=6"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -647,7 +645,60 @@ class Component extends DCLogic {
     ],
   };
 
+  // ¿Hay base de datos conectada?
+  get conectado() { return !!(window.API && window.API.activo); }
+
+  // Trae de Supabase el contenido que la Secretaría edita desde el panel.
+  // Si algo falla o está vacío, se queda el contenido de respaldo.
+  async cargarDeSupabase() {
+    if (!this.conectado) return;
+    try {
+      const [noticias, cultos, paginas, boletines, fotos] = await Promise.all([
+        window.API.noticias({ soloPublicadas: true }).catch(e => { console.error('[Amargura] noticias', e); return null; }),
+        window.API.cultos().catch(e => { console.error('[Amargura] cultos', e); return null; }),
+        window.API.paginas().catch(e => { console.error('[Amargura] páginas', e); return null; }),
+        window.API.boletines().catch(e => { console.error('[Amargura] boletines', e); return null; }),
+        window.API.fotosPortada().catch(e => { console.error('[Amargura] fotos', e); return null; }),
+      ]);
+
+      const nuevo = {};
+
+      if (noticias && noticias.length) nuevo.news = noticias.map(n => {
+        const cuerpo = String(n.texto || '').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean);
+        return {
+          fecha: n.fecha || '',
+          titulo: n.titulo || '',
+          extracto: cuerpo[0] || '',
+          parrafos: cuerpo.length ? cuerpo : [''],
+          img: n.imagen_url || '',
+        };
+      });
+
+      if (cultos && cultos.length) nuevo.cultos = cultos.map(c => ({
+        dia: c.dia, mes: c.mes, titulo: c.titulo, detalle: c.detalle || '',
+      }));
+
+      if (boletines && boletines.length) nuevo.boletines = boletines.map(b => ({
+        titulo: b.titulo, meta: b.meta || '', url: b.url || '', portada: b.portada_url || '',
+      }));
+
+      if (fotos && fotos.length) nuevo.hero = fotos;
+
+      // Las páginas fijas (Historia, Caridad, Sede…) se guardan por su nombre
+      if (paginas && paginas.length) {
+        const porNombre = {};
+        paginas.forEach(p => { porNombre[p.nombre] = p; });
+        nuevo.paginasBD = porNombre;
+      }
+
+      if (Object.keys(nuevo).length) this.setState(nuevo);
+    } catch (e) {
+      console.error('[Amargura] No se ha podido cargar el contenido:', e);
+    }
+  }
+
   componentDidMount() {
+    this.cargarDeSupabase();
     this._heroTimer = setInterval(() => {
       this.setState(s => ({ heroIndex: (s.heroIndex + 1) % s.hero.length }));
     }, 5000);
@@ -757,12 +808,18 @@ class Component extends DCLogic {
         { nombre:'Don Álvaro Valverde Montiel', cargo:'Junta de Gobierno' },
         { nombre:'Don Carlos de Villar Escribano', cargo:'Junta de Gobierno' },
       ],
-      boletines: [
-        { titulo:'Boletín 2025', meta:'Cuaresma · 24 páginas', coverBg:`url('${this.state.virgen}')` },
-        { titulo:'Boletín 2024', meta:'Cuaresma · 20 páginas', coverBg:`url('${this.state.cristo}')` },
-        { titulo:'Boletín 2023', meta:'Cuaresma · 20 páginas', coverBg:`url('${this.state.hero[0]}')` },
-        { titulo:'Especial 70 aniversario', meta:'1955–2025', coverBg:`url('${this.state.hero[1]}')` },
-      ],
+      // Los de la base de datos mandan; si no hay, los de respaldo
+      boletines: (this.state.boletines && this.state.boletines.length)
+        ? this.state.boletines.map((b, i) => ({
+            titulo: b.titulo, meta: b.meta, url: b.url,
+            coverBg: `url('${b.portada || this.state.hero[i % this.state.hero.length]}')`,
+          }))
+        : [
+          { titulo:'Boletín 2025', meta:'Cuaresma · 24 páginas', coverBg:`url('${this.state.virgen}')` },
+          { titulo:'Boletín 2024', meta:'Cuaresma · 20 páginas', coverBg:`url('${this.state.cristo}')` },
+          { titulo:'Boletín 2023', meta:'Cuaresma · 20 páginas', coverBg:`url('${this.state.hero[0]}')` },
+          { titulo:'Especial 70 aniversario', meta:'1955–2025', coverBg:`url('${this.state.hero[1]}')` },
+        ],
     };
   }
 }
