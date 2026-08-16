@@ -8,7 +8,7 @@
   window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcXBmemt1eWF3bWllb25ha3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDMyNTcsImV4cCI6MjEwMjQxOTI1N30.iM8Vq_5RTi7jDp7qL0oPNvYxQmKNH0JsEMg1zpGAv_0';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-api.js?v=14"></script>
+<script src="./supabase-api.js?v=15"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -449,7 +449,7 @@
           </div>
           <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; overflow-x:auto;">
             <sc-for list="{{ cCultos }}" as="c" hint-placeholder-count="4">
-              <div style="display:grid; grid-template-columns:56px 74px 1fr 1.3fr 30px; gap:12px; align-items:center; padding:12px 18px; border-top:1px solid rgba(33,27,22,0.08); min-width:600px;">
+              <div style="display:grid; grid-template-columns:56px 74px 1fr 1.3fr 172px; gap:12px; align-items:center; padding:12px 18px; border-top:1px solid rgba(33,27,22,0.08); min-width:740px;">
                 <input value="{{ c.dia }}" onChange="{{ c.onDia }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 8px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px; text-align:center;">
                 <input value="{{ c.mes }}" onChange="{{ c.onMes }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 8px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px;">
                 <input value="{{ c.titulo }}" onChange="{{ c.onTitulo }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13.5px; font-weight:600;">
@@ -628,11 +628,11 @@
             <div onClick="{{ abrirAlta }}" style="padding:10px 16px; background:var(--oro,#A8843C); color:#2a0810; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">+ Alta hermano</div>
             <div onClick="{{ exportarCenso }}" style="padding:10px 16px; border:1px solid rgba(33,27,22,0.22); font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; color:#4a4038; cursor:pointer; white-space:nowrap;">Exportar</div>
           </div>
-          <div style="display:grid; grid-template-columns:56px 1fr 110px 104px 128px 30px; gap:12px; padding:10px 22px; font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80; border-bottom:1px solid rgba(33,27,22,0.08); min-width:720px;">
+          <div style="display:grid; grid-template-columns:56px 1fr 110px 104px 128px 172px; gap:12px; padding:10px 22px; font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80; border-bottom:1px solid rgba(33,27,22,0.08); min-width:860px;">
             <div>Nº</div><div>Nombre</div><div>Antigüedad</div><div>Cuota</div><div>Acceso portal</div><div></div>
           </div>
           <sc-for list="{{ censo }}" as="c" hint-placeholder-count="6">
-            <div style="display:grid; grid-template-columns:56px 1fr 110px 104px 128px 30px; gap:12px; align-items:center; padding:13px 22px; border-top:1px solid rgba(33,27,22,0.06); min-width:720px;">
+            <div style="display:grid; grid-template-columns:56px 1fr 110px 104px 128px 172px; gap:12px; align-items:center; padding:13px 22px; border-top:1px solid rgba(33,27,22,0.06); min-width:860px;">
               <div style="font-family:'Cinzel',serif; color:var(--granate,#6E1423);">{{ c.num }}</div>
               <div><div style="font-size:14px; font-weight:600;">{{ c.nombre }}</div><div onClick="{{ c.onVerPortal }}" style="font-size:11px; color:var(--granate,#6E1423); font-weight:700; cursor:pointer; margin-top:2px;">Ver su portal →</div></div>
               <div style="font-size:13px; color:#6b625a;">{{ c.desde }}</div>
@@ -848,7 +848,7 @@ class Component extends DCLogic {
     hTab: 'resumen',
     aTab: 'panel',
     cTab: 'fotos',
-    isMobile: (typeof window!=='undefined' && window.innerWidth<760),
+    isMobile: (typeof window!=='undefined' && window.innerWidth<1000),
     editandoNoticia: false,
     noticiaEdit: null,
     nf: { titulo:'', fecha:'', texto:'', foto:'' },
@@ -1672,7 +1672,7 @@ class Component extends DCLogic {
       const modo = new URLSearchParams(window.location.search).get('modo');
       if (!this.conectado && (modo === 'hermano' || modo === 'admin')) this.setView(modo);
     } catch(e) {}
-    this._onResize = () => this.setState({ isMobile: window.innerWidth < 760 });
+    this._onResize = () => this.setState({ isMobile: window.innerWidth < 1000 });
     window.addEventListener('resize', this._onResize);
   }
   componentWillUnmount() {
