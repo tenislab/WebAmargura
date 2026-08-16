@@ -8,7 +8,7 @@
   window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcXBmemt1eWF3bWllb25ha3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDMyNTcsImV4cCI6MjEwMjQxOTI1N30.iM8Vq_5RTi7jDp7qL0oPNvYxQmKNH0JsEMg1zpGAv_0';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-api.js?v=7"></script>
+<script src="./supabase-api.js?v=9"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -55,8 +55,8 @@
       </sc-if>
 
       <div style="background:#FBF8F1; border-top:3px solid var(--oro,#A8843C); padding:30px 28px; box-shadow:0 24px 60px rgba(0,0,0,0.4);">
-        <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Correo electrónico</div>
-        <input value="{{ loginEmail }}" onChange="{{ onLoginEmail }}" placeholder="hermano@ejemplo.com" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; margin-bottom:16px;">
+        <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">DNI</div>
+        <input value="{{ loginEmail }}" onChange="{{ onLoginEmail }}" placeholder="12345678A" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; margin-bottom:16px;">
         <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Contraseña</div>
         <input type="password" value="{{ loginPass }}" onChange="{{ onLoginPass }}" onKeyDown="{{ onLoginKey }}" placeholder="••••••••" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; margin-bottom:20px;">
         <div onClick="{{ doSignIn }}" style="cursor:pointer; text-align:center; padding:13px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700;">{{ loginBtnLabel }}</div>
@@ -359,7 +359,13 @@
                 </div>
                 <div style="padding:11px 13px; display:flex; gap:8px;">
                   <label style="flex:1; text-align:center; padding:8px; border-radius:6px; background:#EFE7D7; font-size:12px; font-weight:600; color:var(--granate,#6E1423); cursor:pointer;">Cambiar<input type="file" accept="image/*" onChange="{{ f.onChange }}" style="display:none;"></label>
-                  <div onClick="{{ f.onRemove }}" style="width:38px; text-align:center; padding:8px; border-radius:6px; border:1px solid rgba(33,27,22,0.18); font-size:13px; cursor:pointer; color:#a33;">✕</div>
+                  <sc-if value="{{ f.pendiente }}" hint-placeholder-val="{{ false }}">
+                    <div onClick="{{ f.onConfirmar }}" style="flex:1; text-align:center; padding:8px; border-radius:6px; background:#a33; color:#fff; font-size:11px; font-weight:700; cursor:pointer;">Confirmar</div>
+                    <div onClick="{{ f.onRevertir }}" style="flex:1; text-align:center; padding:8px; border-radius:6px; border:1px solid rgba(33,27,22,0.25); font-size:11px; font-weight:700; color:#4a4038; cursor:pointer;">Revertir</div>
+                  </sc-if>
+                  <sc-if value="{{ f.noPendiente }}" hint-placeholder-val="{{ true }}">
+                    <div onClick="{{ f.onRemove }}" title="Eliminar" style="width:38px; text-align:center; padding:8px; border-radius:6px; border:1px solid rgba(33,27,22,0.18); font-size:13px; cursor:pointer; color:#a33;">✕</div>
+                  </sc-if>
                 </div>
               </div>
             </sc-for>
@@ -412,7 +418,15 @@
                 <div style="font-size:11px; padding:4px 10px; border-radius:20px; background:{{ n.estBg }}; color:{{ n.estFg }}; font-weight:600;">{{ n.estado }}</div>
                 <div onClick="{{ n.onEditar }}" style="padding:7px 14px; border-radius:6px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer;">Editar</div>
                 <div onClick="{{ n.onToggle }}" style="padding:7px 12px; border-radius:6px; border:1px solid rgba(33,27,22,0.2); color:#4a4038; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">{{ n.toggleLabel }}</div>
-                <div onClick="{{ n.onRemove }}" style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+<sc-if value="{{ n.pendiente }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <div onClick="{{ n.onConfirmar }}" style="padding:6px 11px; border-radius:6px; background:#a33; color:#fff; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Confirmar</div>
+                    <div onClick="{{ n.onRevertir }}" style="padding:6px 11px; border-radius:6px; border:1px solid rgba(33,27,22,0.25); color:#4a4038; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Revertir</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ n.noPendiente }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ n.onRemove }}" title="Eliminar" style="font-size:13px; color:#a33; cursor:pointer; padding:4px 6px;">✕</div>
+                </sc-if>
               </div>
             </sc-for>
           </div>
@@ -433,7 +447,15 @@
                 <input value="{{ c.mes }}" onChange="{{ c.onMes }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 8px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px;">
                 <input value="{{ c.titulo }}" onChange="{{ c.onTitulo }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13.5px; font-weight:600;">
                 <input value="{{ c.detalle }}" onChange="{{ c.onDetalle }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px;">
-                <div onClick="{{ c.onRemove }}" style="text-align:center; font-size:13px; color:#a33; cursor:pointer;">✕</div>
+<sc-if value="{{ c.pendiente }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <div onClick="{{ c.onConfirmar }}" style="padding:6px 11px; border-radius:6px; background:#a33; color:#fff; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Confirmar</div>
+                    <div onClick="{{ c.onRevertir }}" style="padding:6px 11px; border-radius:6px; border:1px solid rgba(33,27,22,0.25); color:#4a4038; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Revertir</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ c.noPendiente }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ c.onRemove }}" title="Eliminar" style="font-size:13px; color:#a33; cursor:pointer; padding:4px 6px;">✕</div>
+                </sc-if>
               </div>
             </sc-for>
           </div>
@@ -542,7 +564,15 @@
                   <span style="font-size:11px; color:#a8843c; font-weight:700; white-space:nowrap;">Sin PDF</span>
                 </sc-if>
                 <label style="padding:8px 14px; border-radius:6px; border:1px solid rgba(33,27,22,0.2); color:#4a4038; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Subir PDF<input type="file" accept="application/pdf" onChange="{{ b.onPdf }}" style="display:none;"></label>
-                <div onClick="{{ b.onRemove }}" style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+<sc-if value="{{ b.pendiente }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <div onClick="{{ b.onConfirmar }}" style="padding:6px 11px; border-radius:6px; background:#a33; color:#fff; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Confirmar</div>
+                    <div onClick="{{ b.onRevertir }}" style="padding:6px 11px; border-radius:6px; border:1px solid rgba(33,27,22,0.25); color:#4a4038; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Revertir</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ b.noPendiente }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ b.onRemove }}" title="Eliminar" style="font-size:13px; color:#a33; cursor:pointer; padding:4px 6px;">✕</div>
+                </sc-if>
               </div>
             </sc-for>
           </div>
@@ -560,8 +590,8 @@
           <div style="display:grid; grid-template-columns:{{ g.altaForm }}; gap:14px; margin-bottom:16px;">
             <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Nombre y apellidos</div><input value="{{ af.nombre }}" onChange="{{ af.onNombre }}" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
             <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Nº de hermano</div><input value="{{ af.num }}" onChange="{{ af.onNum }}" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
-            <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">DNI</div><input value="{{ af.dni }}" onChange="{{ af.onDni }}" placeholder="12345678A" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
-            <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Correo electrónico</div><input value="{{ af.email }}" onChange="{{ af.onEmail }}" placeholder="hermano@correo.com" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+            <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">DNI · usuario y contraseña</div><input value="{{ af.dni }}" onChange="{{ af.onDni }}" placeholder="12345678A" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
+            <div><div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Correo de contacto (opcional)</div><input value="{{ af.email }}" onChange="{{ af.onEmail }}" placeholder="hermano@correo.com" style="width:100%; height:42px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); border-radius:6px; background:#fff; font-size:14px;"></div>
           </div>
           <div style="padding:14px 16px; background:#EFE7D7; border-left:3px solid var(--oro,#A8843C); font-size:12.5px; color:#4a4038; line-height:1.6; margin-bottom:16px;">Al guardar se crea automáticamente su <strong>acceso al Portal del Hermano</strong>: usuario y contraseña serán su <strong>DNI</strong>. El hermano podrá cambiar la contraseña al entrar por primera vez.</div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -608,7 +638,15 @@
                   <span onClick="{{ c.onCrearAcceso }}" style="cursor:pointer; padding:5px 11px; border-radius:6px; border:1px solid var(--oro,#A8843C); color:var(--granate,#6E1423); font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; white-space:nowrap;">Crear acceso</span>
                 </sc-if>
               </div>
-              <div onClick="{{ c.onRemove }}" style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+<sc-if value="{{ c.pendiente }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <div onClick="{{ c.onConfirmar }}" style="padding:6px 11px; border-radius:6px; background:#a33; color:#fff; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Confirmar</div>
+                    <div onClick="{{ c.onRevertir }}" style="padding:6px 11px; border-radius:6px; border:1px solid rgba(33,27,22,0.25); color:#4a4038; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Revertir</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ c.noPendiente }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ c.onRemove }}" title="Eliminar" style="font-size:13px; color:#a33; cursor:pointer; padding:4px 6px;">✕</div>
+                </sc-if>
             </div>
           </sc-for>
         </div>
@@ -709,7 +747,15 @@
               <div style="flex:1; min-width:160px;"><div style="font-weight:600; font-size:14px;">{{ d.nombreMostrado }}</div><div style="font-size:12px; color:#9a8f80;">{{ d.concepto }} · {{ d.fecha }}</div></div>
               <div style="font-size:10.5px; padding:4px 10px; border-radius:20px; background:rgba(110,20,35,0.08); color:#6E1423; font-weight:600; white-space:nowrap;">{{ d.metodo }}</div>
               <div style="font-family:'Cinzel',serif; font-size:15px; width:90px; text-align:right;">{{ d.importe }}</div>
-              <div onClick="{{ d.onQuitar }}" style="font-size:13px; color:#a33; cursor:pointer;">✕</div>
+              <sc-if value="{{ d.pendiente }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <div onClick="{{ d.onConfirmar }}" style="padding:6px 11px; border-radius:6px; background:#a33; color:#fff; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Confirmar</div>
+                  <div onClick="{{ d.onRevertir }}" style="padding:6px 11px; border-radius:6px; border:1px solid rgba(33,27,22,0.25); color:#4a4038; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; cursor:pointer; white-space:nowrap;">Revertir</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ d.noPendiente }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ d.onRemove }}" title="Eliminar" style="font-size:13px; color:#a33; cursor:pointer; padding:4px 6px;">✕</div>
+              </sc-if>
             </div>
           </sc-for>
         </div>
@@ -1084,6 +1130,7 @@ class Component extends DCLogic {
     suplantando: false,
     errorCarga: '',
     sesionAbierta: null,
+    porBorrar: null,
     pwActual: '', pwNueva: '', pwCambiada: false,
     loginEmail: '',
     loginPass: '',
@@ -1176,6 +1223,38 @@ class Component extends DCLogic {
   removeHeroFoto(i) { this.setState(s => ({ hero: s.hero.filter((_,j)=>j!==i) })); }
 
   setNf(k, v) { this.setState(s => ({ nf:{...s.nf, [k]:v} })); }
+
+  // ---- Borrado en dos pasos: la ✕ solo marca; hay que confirmar o revertir ----
+  marcarBorrado(tipo, i) { this.setState({ porBorrar: { tipo, i } }); }
+  revertirBorrado() { this.setState({ porBorrar: null }); }
+  pendienteDe(tipo, i) {
+    const p = this.state.porBorrar;
+    return !!(p && p.tipo === tipo && p.i === i);
+  }
+  confirmarBorrado() {
+    const p = this.state.porBorrar;
+    if (!p) return;
+    this.setState({ porBorrar: null });
+    const acciones = {
+      noticias:  (i) => this.quitarNoticia(i),
+      cultos:    (i) => this.quitarCulto(i),
+      boletines: (i) => this.quitarBoletin(i),
+      fotos:     (i) => this.removeHeroFoto(i),
+      donativos: (i) => this.quitarDonativo(i),
+      hermanos:  (i) => this.quitarHermano(i),
+    };
+    const fn = acciones[p.tipo];
+    if (fn) fn(p.i);
+  }
+  borrable(tipo, i) {
+    return {
+      pendiente: this.pendienteDe(tipo, i),
+      noPendiente: !this.pendienteDe(tipo, i),
+      onRemove: () => this.marcarBorrado(tipo, i),
+      onConfirmar: () => this.confirmarBorrado(),
+      onRevertir: () => this.revertirBorrado(),
+    };
+  }
   quitarNoticia(i) {
     if (this.conectado) {
       const n = this.state.noticias[i];
@@ -1400,7 +1479,7 @@ class Component extends DCLogic {
         const r = await window.API.altaHermano({ nombre, num, dni, email });
         this.setState({
           altaOpen:false,
-          cred: r && r.password_inicial ? { nombre, usuario: r.usuario, pass: r.password_inicial } : null,
+          cred: r && r.password_inicial ? { nombre, usuario: r.usuario, pass: r.password_inicial } : null,   // usuario = DNI
           credEnviado:false,
         });
       });
@@ -1423,7 +1502,6 @@ class Component extends DCLogic {
   }
   quitarHermano(num) {
     const h = this.state.censo.find(c => c.num === num);
-    if (!confirm('¿Dar de baja a ' + (h ? h.nombre : 'este hermano') + '?\n\nDesaparecerá del censo y sus recibos pendientes dejarán de aparecer en Cuotas.')) return;
     if (this.conectado && h) return this.sync(() => window.API.bajaHermano(h.id));
     // En demostración: quitar al hermano Y todas sus cuotas y donativos
     this.setState(s => ({
@@ -1793,7 +1871,7 @@ class Component extends DCLogic {
         tieneAcceso: !!c.acceso, sinAcceso: !c.acceso,
         onCrearAcceso: () => this.crearAcceso(c.num),
         onVerPortal: () => this.verPortalDe(c.num),
-        onRemove: () => this.quitarHermano(c.num),
+        ...this.borrable('hermanos', c.num),
       }));
 
     return {
@@ -1961,7 +2039,7 @@ class Component extends DCLogic {
       cHeroFotos: this.state.hero.map((u, i) => ({
         n: i+1, bg:`url('${u}')`,
         onChange: (e) => this.changeHeroFoto(i, e),
-        onRemove: () => this.removeHeroFoto(i),
+        ...this.borrable('fotos', i),
       })),
       cNoticias: this.state.noticias.map((n, i) => ({
         titulo:n.titulo, fecha:n.fecha, estado:n.estado, bg:`url('${n.img}')`,
@@ -1971,7 +2049,7 @@ class Component extends DCLogic {
         toggleLabel: n.estado==='Publicada' ? 'Despublicar' : 'Publicar',
         onEditar: () => this.editarNoticia(i),
         onToggle: () => this.toggleEstadoNoticia(i),
-        onRemove: () => this.quitarNoticia(i),
+        ...this.borrable('noticias', i),
       })),
       noticiaFormTitulo: this.state.noticiaEdit != null ? 'Editar noticia' : 'Nueva noticia',
       noticiaBtnLabel: this.state.noticiaEdit != null ? 'Guardar cambios' : 'Publicar noticia',
@@ -1983,7 +2061,7 @@ class Component extends DCLogic {
         onTitulo:(e)=>this.setCulto(i,'titulo',e.target.value),
         onDetalle:(e)=>this.setCulto(i,'detalle',e.target.value),
         onBlur:()=>this.guardarCultoEnBD(i),
-        onRemove:()=>this.quitarCulto(i),
+        ...this.borrable('cultos', i),
       })),
       cPaginas: this.state.paginas.map((p, i) => ({
         icon:p.icon, nombre:p.nombre,
@@ -2025,7 +2103,7 @@ class Component extends DCLogic {
         url: b.url || '', tienePdf: !!b.url, sinPdf: !b.url,
         onTitulo: (e) => this.setBoletinTitulo(i, e.target.value),
         onPdf: (e) => this.cambiarBoletinPdf(i, e),
-        onRemove: () => this.quitarBoletin(i),
+        ...this.borrable('boletines', i),
       })),
       stats: [
         { valor:String(this.state.censo.length), label:'Hermanos activos' },
@@ -2117,7 +2195,7 @@ class Component extends DCLogic {
         onImporte: (e)=>this.setDform('importe', e.target.value),
         onMetodo: (e)=>this.setDform('metodo', e.target.value),
       },
-      donativos: this.state.donativos.map((d, i) => ({ ...d, nombreMostrado: d.hermanoNum ? (d.nombre + ' (nº ' + d.hermanoNum + ')') : d.nombre, onQuitar: () => this.quitarDonativo(i) })),
+      donativos: this.state.donativos.map((d, i) => ({ ...d, nombreMostrado: d.hermanoNum ? (d.nombre + ' (nº ' + d.hermanoNum + ')') : d.nombre, ...this.borrable('donativos', i) })),
       totalDonativos: this.state.donativos.reduce((sum, d) => sum + (parseFloat(String(d.importe).replace(/[^\d,.-]/g,'').replace(',', '.')) || 0), 0).toFixed(2).replace('.', ',') + ' €',
       censoNombres: this.db.censo().map(c => c.nombre),
       onBizumNumero: (e) => this.setBizumNumero(e.target.value),

@@ -56,13 +56,25 @@
     return data;
   }
 
+  // Supabase Auth exige un correo, pero la Hermandad quiere que el hermano
+  // entre con su DNI. Solución: por dentro se usa <DNI>@hermandadamargura.es
+  // como identificador; el correo personal se guarda aparte, en la ficha.
+  const DOMINIO = 'hermandadamargura.es';
+  function comoLogin(v) {
+    const t = String(v || '').trim().toLowerCase();
+    if (!t) return '';
+    return t.includes('@') ? t : (t.replace(/[^a-z0-9]/g, '') + '@' + DOMINIO);
+  }
   const API = {
     activo,
     sb,
 
     // ---------------------------------------------------------------- SESIÓN
-    async login(email, password) {
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    // Acepta el DNI (lo habitual) o un correo completo
+    async login(usuario, password) {
+      const { data, error } = await sb.auth.signInWithPassword({
+        email: comoLogin(usuario), password,
+      });
       if (error) throw error;
       return data;
     },
@@ -125,9 +137,9 @@
     // ⚠️ En Supabase → Authentication → Sign In / Providers → Email,
     //    desactiva "Confirm email" para que el hermano pueda entrar al momento.
     async altaHermano({ nombre, num, dni, email }) {
-      const password = String(dni || '').trim();
-      if (!password) throw new Error('Hace falta el DNI: es la contraseña inicial del hermano.');
-      if (!email) throw new Error('Hace falta un correo para poder crear el acceso.');
+      const password = String(dni || '').trim().toUpperCase();
+      if (!password) throw new Error('Hace falta el DNI: es el usuario y la contraseña del hermano.');
+      const login = comoLogin(password);
 
       // Cliente desechable, sin guardar sesión: no toca la del administrador
       const aparte = window.supabase.createClient(URL_, KEY_, {
@@ -135,7 +147,7 @@
       });
 
       const { data: reg, error: errReg } = await aparte.auth.signUp({
-        email, password,
+        email: login, password,
         options: { data: { nombre, hermano_num: num } },
       });
       if (errReg) throw new Error(errReg.message);
@@ -150,7 +162,8 @@
       }).select().single();
       if (error) throw error;
 
-      return { hermano, usuario: email, password_inicial: password };
+      // El hermano entra escribiendo su DNI, no este correo interno
+      return { hermano, usuario: password, password_inicial: password };
     },
 
     // Da acceso al portal a un hermano que ya está en el censo
@@ -158,14 +171,14 @@
       const { data: h, error: e1 } = await sb
         .from('hermanos').select('*').eq('id', hermanoId).single();
       if (e1) throw e1;
-      if (!h.dni) throw new Error('Ese hermano no tiene DNI: es la contraseña inicial.');
-      if (!h.email) throw new Error('Ese hermano no tiene correo electrónico.');
+      if (!h.dni) throw new Error('Ese hermano no tiene DNI: es su usuario y su contraseña.');
+      const dni = String(h.dni).trim().toUpperCase();
 
       const aparte = window.supabase.createClient(URL_, KEY_, {
         auth: { persistSession: false, autoRefreshToken: false },
       });
       const { data: reg, error: errReg } = await aparte.auth.signUp({
-        email: h.email, password: h.dni,
+        email: comoLogin(dni), password: dni,
         options: { data: { nombre: h.nombre, hermano_num: h.num } },
       });
       if (errReg) throw new Error(errReg.message);
@@ -176,7 +189,7 @@
       }).eq('id', hermanoId);
       if (e2) throw e2;
 
-      return { usuario: h.email, password_inicial: h.dni };
+      return { usuario: dni, password_inicial: dni };
     },
 
     async _crearAccesoAntiguo(hermanoId) {
