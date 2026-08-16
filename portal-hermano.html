@@ -404,10 +404,10 @@
           <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; overflow-x:auto;">
             <sc-for list="{{ cCultos }}" as="c" hint-placeholder-count="4">
               <div style="display:grid; grid-template-columns:56px 74px 1fr 1.3fr 30px; gap:12px; align-items:center; padding:12px 18px; border-top:1px solid rgba(33,27,22,0.08); min-width:600px;">
-                <input value="{{ c.dia }}" onChange="{{ c.onDia }}" style="height:36px; padding:0 8px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px; text-align:center;">
-                <input value="{{ c.mes }}" onChange="{{ c.onMes }}" style="height:36px; padding:0 8px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px;">
-                <input value="{{ c.titulo }}" onChange="{{ c.onTitulo }}" style="height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13.5px; font-weight:600;">
-                <input value="{{ c.detalle }}" onChange="{{ c.onDetalle }}" style="height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px;">
+                <input value="{{ c.dia }}" onChange="{{ c.onDia }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 8px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px; text-align:center;">
+                <input value="{{ c.mes }}" onChange="{{ c.onMes }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 8px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px;">
+                <input value="{{ c.titulo }}" onChange="{{ c.onTitulo }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13.5px; font-weight:600;">
+                <input value="{{ c.detalle }}" onChange="{{ c.onDetalle }}" onBlur="{{ c.onBlur }}" style="height:36px; padding:0 10px; border:1px solid rgba(33,27,22,0.18); border-radius:5px; background:#fff; font-size:13px;">
                 <div onClick="{{ c.onRemove }}" style="text-align:center; font-size:13px; color:#a33; cursor:pointer;">✕</div>
               </div>
             </sc-for>
@@ -433,6 +433,7 @@
                 <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:22px; color:var(--granate,#6E1423); line-height:1.1;">{{ pagEdit.nombre }}</div>
               </div>
               <sc-if value="{{ pagGuardado }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px; color:#1F8A5B; font-weight:700;">✓ Guardado</span></sc-if>
+              <div onClick="{{ guardarPagina }}" style="cursor:pointer; padding:10px 20px; border-radius:7px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; white-space:nowrap;">Guardar página</div>
             </div>
 
             <div style="display:grid; grid-template-columns:{{ g.form14 }}; gap:14px; margin-bottom:16px;">
@@ -1054,6 +1055,7 @@ class Component extends DCLogic {
     af: { nombre:'', num:'', dni:'', email:'' },
     cred: null,
     credEnviado: false,
+    cargando: false,
     pwActual: '', pwNueva: '', pwCambiada: false,
     loginEmail: '',
     loginPass: '',
@@ -1109,6 +1111,7 @@ class Component extends DCLogic {
   // Bizum, Domiciliación (conciliar tras la remesa SEPA) y Efectivo en Casa
   // Hermandad. Todas acaban en la misma fila: UPDATE cuotas SET estado, metodo_pago.
   marcarPagado(id, metodo) {
+    if (this.conectado) return this.sync(() => window.API.marcarPagado(id, metodo));
     const hoy = new Date().toLocaleDateString('es-ES');
     this.setState(s => ({
       cuotas: s.cuotas.map(c => c.id === id
@@ -1119,6 +1122,7 @@ class Component extends DCLogic {
   }
   // Pasa un recibo pagado a pendiente (por si se marcó por error o hay devolución)
   marcarPendiente(id) {
+    if (this.conectado) return this.sync(() => window.API.marcarPendiente(id));
     this.setState(s => ({
       cuotas: s.cuotas.map(c => c.id === id
         ? { ...c, estado:'Pendiente', avisado:false, detalle:'Pendiente de pago' }
@@ -1128,23 +1132,60 @@ class Component extends DCLogic {
   generarRemesa() { this.setState({ remesaGenerada:true }); }
 
   // ---- Contenido web: fotos / noticias / cultos / páginas / boletines ----
-  fileUrl(e, cb) {
-    const f = e && e.target && e.target.files && e.target.files[0];
-    if (!f) return;
-    cb(URL.createObjectURL(f));
+  fileUrl(e, cb, carpeta) {
+    const file = e && e.target && e.target.files && e.target.files[0];
+    if (!file) return;
+    if (this.conectado) {
+      window.API.subirArchivo(file, carpeta || 'general')
+        .then(url => cb(url))
+        .catch(err => alert('No se ha podido subir el archivo: ' + (err.message || err)));
+      return;
+    }
+    cb(URL.createObjectURL(file));
   }
   addHeroFoto(e) { this.fileUrl(e, (url) => this.setState(s => ({ hero:[...s.hero, url] }))); }
   changeHeroFoto(i, e) { this.fileUrl(e, (url) => this.setState(s => { const h=s.hero.slice(); h[i]=url; return {hero:h}; })); }
   removeHeroFoto(i) { this.setState(s => ({ hero: s.hero.filter((_,j)=>j!==i) })); }
 
   setNf(k, v) { this.setState(s => ({ nf:{...s.nf, [k]:v} })); }
-  quitarNoticia(i) { this.setState(s => ({ noticias: s.noticias.filter((_,j)=>j!==i) })); }
+  quitarNoticia(i) {
+    if (this.conectado) {
+      const n = this.state.noticias[i];
+      if (n && n.id) return this.sync(() => window.API.quitarNoticia(n.id));
+    }
+    this.setState(s => ({ noticias: s.noticias.filter((_,j)=>j!==i) }));
+  }
 
   addCulto() { this.setState(s => ({ cultos:[...s.cultos, { dia:'00', mes:'Mes', titulo:'Nuevo culto', detalle:'Detalle…' }] })); }
   setCulto(i, k, v) { this.setState(s => { const a=s.cultos.slice(); a[i]={...a[i],[k]:v}; return {cultos:a}; }); }
-  quitarCulto(i) { this.setState(s => ({ cultos: s.cultos.filter((_,j)=>j!==i) })); }
+  quitarCulto(i) {
+    if (this.conectado) {
+      const c = this.state.cultos[i];
+      if (c && c.id) return this.sync(() => window.API.quitarCulto(c.id));
+    }
+    this.setState(s => ({ cultos: s.cultos.filter((_,j)=>j!==i) }));
+  }
+  // Los campos de culto se guardan al salir del campo, no en cada tecla
+  guardarCultoEnBD(i) {
+    if (!this.conectado) return;
+    const c = this.state.cultos[i];
+    if (!c) return;
+    this.sync(() => window.API.guardarCulto(c.id, {
+      dia:c.dia, mes:c.mes, titulo:c.titulo, detalle:c.detalle,
+    }));
+  }
 
   selPagina(i) { this.setState({ paginaSel:i, pagGuardado:false }); }
+  // Guarda la página abierta en la base de datos (al soltar el campo)
+  guardarPaginaEnBD() {
+    if (!this.conectado) return;
+    const p = this.state.paginas[this.state.paginaSel];
+    if (!p || !p.id) return;
+    this.sync(() => window.API.guardarPagina(p.id, {
+      antetitulo:p.antetitulo, titulo:p.titulo, entradilla:p.entradilla,
+      bloques:p.bloques, fotos:p.fotos,
+    }));
+  }
   // Edita un campo simple (titulo, antetitulo, entradilla) de la página abierta
   setPagCampo(campo, v) {
     this.setState(s => {
@@ -1234,6 +1275,20 @@ class Component extends DCLogic {
     });
   }
   guardarNoticia(estado) {
+    if (this.conectado) {
+      const s = this.state;
+      const id = s.noticiaEdit != null ? (s.noticias[s.noticiaEdit] || {}).id : null;
+      return this.sync(async () => {
+        await window.API.guardarNoticia(id, {
+          titulo: s.nf.titulo || 'Nueva noticia',
+          fecha: s.nf.fecha || new Date().toLocaleDateString('es-ES'),
+          texto: s.nf.texto,
+          imagen_url: s.nf.foto || null,
+          estado,
+        });
+        this.setState({ editandoNoticia:false, noticiaEdit:null });
+      });
+    }
     this.setState(s => {
       const datos = { titulo: s.nf.titulo || 'Nueva noticia', fecha: s.nf.fecha || 'Hoy', texto: s.nf.texto, img: s.nf.foto || s.hero[0], estado };
       if (s.noticiaEdit != null) {
@@ -1244,13 +1299,27 @@ class Component extends DCLogic {
     });
   }
   toggleEstadoNoticia(i) {
+    if (this.conectado) {
+      const n = this.state.noticias[i];
+      const nuevo = n.estado === 'Publicada' ? 'Borrador' : 'Publicada';
+      return this.sync(() => window.API.guardarNoticia(n.id, { estado: nuevo }));
+    }
     this.setState(s => {
       const a = s.noticias.slice();
       a[i] = { ...a[i], estado: a[i].estado === 'Publicada' ? 'Borrador' : 'Publicada' };
       return { noticias:a };
     });
   }
-  quitarBoletin(i) { this.setState(s => ({ boletines: s.boletines.filter((_,j)=>j!==i) })); }
+  quitarBoletin(i) {
+    if (this.conectado) {
+      const b = this.state.boletines[i];
+      if (b && b.id) return this.sync(async () => {
+        const { error } = await window.API.sb.from('boletines').delete().eq('id', b.id);
+        if (error) throw error;
+      });
+    }
+    this.setState(s => ({ boletines: s.boletines.filter((_,j)=>j!==i) }));
+  }
 
   // ---- Hermanos: alta / baja / búsqueda / exportar ----
   onBuscarHermano(v) { this.setState({ buscarHermano:v }); }
@@ -1266,6 +1335,7 @@ class Component extends DCLogic {
         censo: s.censo.map(x => x.num === num ? { ...x, acceso:true } : x),
         cred: { nombre: c.nombre, usuario: dni },
         credEnviado: false,
+    cargando: false,
       };
     });
   }
@@ -1286,6 +1356,17 @@ class Component extends DCLogic {
   enviarCredenciales() { this.setState({ credEnviado:true }); }
   setAf(k, v) { this.setState(s => ({ af:{...s.af, [k]:v} })); }
   confirmAlta() {
+    if (this.conectado) {
+      const { nombre, num, dni, email } = this.state.af;
+      return this.sync(async () => {
+        const r = await window.API.altaHermano({ nombre, num, dni, email });
+        this.setState({
+          altaOpen:false,
+          cred: r && r.password_inicial ? { nombre, usuario: email } : null,
+          credEnviado:false,
+        });
+      });
+    }
     this.setState(s => {
       const nombre = s.af.nombre || 'Nuevo hermano';
       const dni = (s.af.dni || '').toUpperCase().trim();
@@ -1304,7 +1385,13 @@ class Component extends DCLogic {
       };
     });
   }
-  quitarHermano(num) { this.setState(s => ({ censo: s.censo.filter(c => c.num !== num) })); }
+  quitarHermano(num) {
+    if (this.conectado) {
+      const h = this.state.censo.find(c => c.num === num);
+      if (h) return this.sync(() => window.API.bajaHermano(h.id));
+    }
+    this.setState(s => ({ censo: s.censo.filter(c => c.num !== num) }));
+  }
   exportarCenso() {
     const alCorriente = (num) => !this.state.cuotas.some(c => c.hermanoNum === num && c.estado === 'Pendiente');
     const rows = [
@@ -1326,6 +1413,18 @@ class Component extends DCLogic {
   cerrarDonativo() { this.setState({ donativoFormOpen:false }); }
   setDform(k, v) { this.setState(s => ({ dform:{ ...s.dform, [k]:v } })); }
   guardarDonativo() {
+    if (this.conectado) {
+      const d = this.state.dform;
+      const match = this.state.censo.find(c => c.nombre.trim().toLowerCase() === String(d.nombre||'').trim().toLowerCase());
+      const importe = parseFloat(String(d.importe).replace(/[^\d,.-]/g,'').replace(',', '.')) || 0;
+      return this.sync(async () => {
+        await window.API.addDonativo({
+          nombre: d.nombre || 'Anónimo', hermanoId: match ? match.id : null,
+          concepto: d.concepto || 'Donativo', importe, metodo: d.metodo,
+        });
+        this.setState({ donativoFormOpen:false });
+      });
+    }
     this.setState(s => {
       const hoy = new Date().toLocaleDateString('es-ES');
       const importe = s.dform.importe ? (String(s.dform.importe).replace(',', '.').match(/[\d.]+/) ? Number(String(s.dform.importe).replace(',', '.')).toFixed(2).replace('.', ',') + ' €' : s.dform.importe) : '0,00 €';
@@ -1336,9 +1435,32 @@ class Component extends DCLogic {
       return { donativos:[nuevo, ...s.donativos], donativoFormOpen:false };
     });
   }
-  quitarDonativo(i) { this.setState(s => ({ donativos: s.donativos.filter((_,j)=>j!==i) })); }
-  setBizumNumero(v) { this.setState({ bizumNumero:v }); }
-  setCampania(k, v) { this.setState(s => ({ campania:{ ...s.campania, [k]:v } })); }
+  quitarDonativo(i) {
+    if (this.conectado) {
+      const d = this.state.donativos[i];
+      if (d && d.id) return this.sync(() => window.API.quitarDonativo(d.id));
+    }
+    this.setState(s => ({ donativos: s.donativos.filter((_,j)=>j!==i) }));
+  }
+  setBizumNumero(v) {
+    this.setState({ bizumNumero:v });
+    if (this.conectado) {
+      clearTimeout(this._bizumTimer);
+      this._bizumTimer = setTimeout(() => window.API.guardarAjuste('bizum_numero', v), 700);
+    }
+  }
+  setCampania(k, v) {
+    this.setState(s => ({ campania:{ ...s.campania, [k]:v } }));
+    if (this.conectado && this.state.campania.id) {
+      clearTimeout(this._campTimer);
+      this._campTimer = setTimeout(() => {
+        const c = this.state.campania;
+        window.API.guardarCampania(c.id, {
+          titulo:c.titulo, objetivo:Number(c.objetivo)||0, recaudado:Number(c.recaudado)||0,
+        });
+      }, 700);
+    }
+  }
   prellenarRecordatorio() {
     const n = this.state.cuotas.filter(c => c.estado === 'Pendiente').length;
     this.setState({
@@ -1348,7 +1470,26 @@ class Component extends DCLogic {
     });
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    // ¿Hay sesión abierta de antes? Entrar sin volver a pedir contraseña.
+    if (this.conectado) {
+      try {
+        const yo = await window.API.yo();
+        if (yo) {
+          this.setState({
+            view: yo.rol === 'admin' ? 'admin' : 'hermano',
+            hermano: {
+              ...this.state.hermano,
+              id: yo.id, num: yo.num, nombre: yo.nombre,
+              dni: yo.dni || '', email: yo.email || '',
+              tel: yo.telefono || '', dir: yo.direccion || '', iban: yo.iban || '',
+            },
+          });
+        }
+      } catch (e) {}
+      this.cargarTodo();
+    }
+
     try {
       // Los accesos directos ?modo= son solo para la demostración.
       // Con la base de datos conectada SIEMPRE hay que iniciar sesión.
@@ -1365,6 +1506,89 @@ class Component extends DCLogic {
 
   // ¿Hay Supabase configurado? (supabase-config.js relleno)
   get conectado() { return !!(window.API && window.API.activo); }
+
+  // ==========================================================================
+  //  SINCRONIZACIÓN CON LA BASE DE DATOS
+  //  Sin Supabase configurado no hace nada y todo sigue en local (demo).
+  // ==========================================================================
+
+  // Trae de la base de datos todo lo que muestra el portal.
+  async cargarTodo() {
+    if (!this.conectado) return;
+    this.setState({ cargando: true });
+    try {
+      const [censo, cuotas, donativos, noticias, cultos, paginas, boletines, fotos, campania, bizum] =
+        await Promise.all([
+          window.API.censo().catch(() => null),
+          window.API.cuotas().catch(() => null),
+          window.API.donativos().catch(() => null),
+          window.API.noticias().catch(() => null),
+          window.API.cultos().catch(() => null),
+          window.API.paginas().catch(() => null),
+          window.API.boletines().catch(() => null),
+          window.API.fotosPortada().catch(() => null),
+          window.API.campaniaActiva().catch(() => null),
+          window.API.ajuste('bizum_numero').catch(() => null),
+        ]);
+
+      const nuevo = { cargando: false };
+
+      if (censo) nuevo.censo = censo.map(c => ({
+        id: c.id, num: c.num, nombre: c.nombre, dni: c.dni || '',
+        desde: c.desde || '', acceso: !!c.acceso, email: c.email || '',
+      }));
+
+      if (cuotas) nuevo.cuotas = cuotas;
+      if (donativos) nuevo.donativos = donativos;
+
+      if (noticias) nuevo.noticias = noticias.map(n => ({
+        id: n.id, titulo: n.titulo, fecha: n.fecha, texto: n.texto || '',
+        img: n.imagen_url || '', estado: n.estado,
+      }));
+
+      if (cultos) nuevo.cultos = cultos.map(c => ({
+        id: c.id, dia: c.dia, mes: c.mes, titulo: c.titulo, detalle: c.detalle || '',
+      }));
+
+      if (paginas && paginas.length) nuevo.paginas = paginas.map(p => ({
+        id: p.id, icon: p.icono || '📄', nombre: p.nombre,
+        antetitulo: p.antetitulo || '', titulo: p.titulo,
+        entradilla: p.entradilla || '',
+        bloques: Array.isArray(p.bloques) ? p.bloques : [],
+        fotos: Array.isArray(p.fotos) ? p.fotos : [],
+      }));
+
+      if (boletines) nuevo.boletines = boletines.map(b => ({
+        id: b.id, titulo: b.titulo, meta: b.meta || '', url: b.url || '',
+      }));
+
+      if (fotos && fotos.length) nuevo.hero = fotos;
+
+      if (campania) nuevo.campania = {
+        id: campania.id, titulo: campania.titulo,
+        objetivo: String(campania.objetivo), recaudado: String(campania.recaudado),
+      };
+
+      if (bizum) nuevo.bizumNumero = bizum;
+
+      this.setState(nuevo);
+    } catch (e) {
+      console.error('[Amargura] Error al cargar datos:', e);
+      this.setState({ cargando: false });
+    }
+  }
+
+  // Ejecuta un cambio en la base de datos y recarga. Si algo falla, avisa.
+  async sync(fn) {
+    if (!this.conectado) return;
+    try {
+      await fn();
+      await this.cargarTodo();
+    } catch (e) {
+      console.error('[Amargura]', e);
+      alert('No se ha podido guardar: ' + (e.message || e));
+    }
+  }
 
   // Inicio de sesión real. Si no hay Supabase configurado, avisa en lugar
   // de dejar pasar a nadie sin contraseña.
@@ -1401,6 +1625,8 @@ class Component extends DCLogic {
           tel: yo.telefono || '', dir: yo.direccion || '', iban: yo.iban || '',
         },
       });
+
+      this.cargarTodo();
 
       if (yo.debe_cambiar_password) {
         this.setState({ hTab: 'datos' });
@@ -1440,6 +1666,12 @@ class Component extends DCLogic {
     // Bizum no tiene webhook: esto solo avisa a Secretaría. El recibo lo
     // confirma ella con "✓ Pagado" al ver el ingreso en el banco.
     // TODO Supabase: INSERT en 'avisos_pago' (cuota_id, hermano_id, fecha).
+    if (this.conectado) {
+      const cuotaId = this.state.pagoAbierto;
+      this.sync(() => window.API.avisarBizum(cuotaId, this.state.hermano.id))
+        .then(() => this.setState({ pagoAbierto:null, pagoProcesando:false }));
+      return;
+    }
     this._pagoTimer = setTimeout(() => {
       this.setState(s => {
         if (s.pagoAbierto == null) return null;
@@ -1608,7 +1840,19 @@ class Component extends DCLogic {
       onDatoNombre:(e)=>this.setDato('nombre',e.target.value), onDatoDni:(e)=>this.setDato('dni',e.target.value),
       onDatoDir:(e)=>this.setDato('dir',e.target.value), onDatoTel:(e)=>this.setDato('tel',e.target.value),
       onDatoEmail:(e)=>this.setDato('email',e.target.value), onDatoIban:(e)=>this.setDato('iban',e.target.value),
-      guardarDatos: ()=>this.setState({ datosGuardados:true }),  // TODO: supabase.from('hermanos').update(...)
+      guardarDatos: ()=>{
+        if (this.conectado) {
+          const h = this.state.hermano;
+          return this.sync(async () => {
+            await window.API.guardarDatosHermano(h.id, {
+              nombre:h.nombre, dni:h.dni, telefono:h.tel,
+              direccion:h.dir, email:h.email, iban:h.iban,
+            });
+            this.setState({ datosGuardados:true });
+          });
+        }
+        this.setState({ datosGuardados:true });
+      },
       datosGuardados: this.state.datosGuardados,
 
       documentos: [
@@ -1680,6 +1924,7 @@ class Component extends DCLogic {
         onMes:(e)=>this.setCulto(i,'mes',e.target.value),
         onTitulo:(e)=>this.setCulto(i,'titulo',e.target.value),
         onDetalle:(e)=>this.setCulto(i,'detalle',e.target.value),
+        onBlur:()=>this.guardarCultoEnBD(i),
         onRemove:()=>this.quitarCulto(i),
       })),
       cPaginas: this.state.paginas.map((p, i) => ({
@@ -1714,6 +1959,7 @@ class Component extends DCLogic {
         };
       })(),
       addPagBloque: () => this.addPagBloque(),
+      guardarPagina: () => { this.guardarPaginaEnBD(); this.setState({ pagGuardado:true }); },
       addPagFoto: (e) => this.addPagFoto(e),
       addBoletin: (e) => this.addBoletin(e),
       cBoletines: this.state.boletines.map((b, i) => ({
