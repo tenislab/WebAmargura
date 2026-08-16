@@ -43,22 +43,26 @@
         <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Correo electrónico</div>
         <input value="{{ loginEmail }}" onChange="{{ onLoginEmail }}" placeholder="hermano@ejemplo.com" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; margin-bottom:16px;">
         <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Contraseña</div>
-        <input type="password" placeholder="••••••••" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; margin-bottom:20px;">
-        <div onClick="{{ doSignIn }}" style="cursor:pointer; text-align:center; padding:13px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700;">Iniciar sesión</div>
+        <input type="password" value="{{ loginPass }}" onChange="{{ onLoginPass }}" onKeyDown="{{ onLoginKey }}" placeholder="••••••••" style="width:100%; height:44px; padding:0 12px; border:1px solid rgba(33,27,22,0.2); background:#fff; font-size:14px; margin-bottom:20px;">
+        <div onClick="{{ doSignIn }}" style="cursor:pointer; text-align:center; padding:13px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700;">{{ loginBtnLabel }}</div>
 
-        <sc-if value="{{ loginNote }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top:14px; padding:11px 14px; background:#EFE7D7; border-left:3px solid var(--oro,#A8843C); font-size:12.5px; color:#4a4038; line-height:1.5;">La autenticación real se activará al conectar <strong>Supabase Auth</strong>. Mientras tanto, entra con los accesos de demostración.</div>
+        <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:14px; padding:11px 14px; background:rgba(170,51,51,0.1); border-left:3px solid #a33; font-size:12.5px; color:#8a2b2b; line-height:1.5;">{{ loginErrorMsg }}</div>
         </sc-if>
 
-        <div style="display:flex; align-items:center; gap:12px; margin:20px 0 16px;"><div style="flex:1; height:1px; background:rgba(33,27,22,0.14);"></div><span style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80;">Demostración</span><div style="flex:1; height:1px; background:rgba(33,27,22,0.14);"></div></div>
+        <div style="text-align:center; margin-top:18px; font-size:12px; color:#8a7d6e; cursor:pointer;">¿Olvidaste tu contraseña?</div>
 
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <div onClick="{{ demoHermano }}" style="cursor:pointer; text-align:center; padding:12px; border:1px solid var(--granate,#6E1423); color:var(--granate,#6E1423); font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Entrar como Hermano</div>
-          <div onClick="{{ demoAdmin }}" style="cursor:pointer; text-align:center; padding:12px; border:1px solid rgba(33,27,22,0.3); color:#4a4038; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Entrar como Administrador</div>
+        <sc-if value="{{ modoDemo }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="display:flex; align-items:center; gap:12px; margin:20px 0 16px;"><div style="flex:1; height:1px; background:rgba(33,27,22,0.14);"></div><span style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#9a8f80;">Demostración</span><div style="flex:1; height:1px; background:rgba(33,27,22,0.14);"></div></div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div onClick="{{ demoHermano }}" style="cursor:pointer; text-align:center; padding:12px; border:1px solid var(--granate,#6E1423); color:var(--granate,#6E1423); font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Entrar como Hermano</div>
+            <div onClick="{{ demoAdmin }}" style="cursor:pointer; text-align:center; padding:12px; border:1px solid rgba(33,27,22,0.3); color:#4a4038; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Entrar como Administrador</div>
+          </div>
         </div>
-        <div style="text-align:center; margin-top:18px; font-size:12px; color:#8a7d6e;">¿Olvidaste tu contraseña?</div>
+        </sc-if>
       </div>
-      <p style="text-align:center; font-family:monospace; font-size:10.5px; color:rgba(240,230,214,0.4); margin-top:20px;">MAQUETA · preparada para Supabase (Auth · Postgres · Storage)</p>
+      <p style="text-align:center; font-family:monospace; font-size:10.5px; color:rgba(240,230,214,0.4); margin-top:20px;">{{ pieLogin }}</p>
     </div>
   </div>
   </sc-if>
@@ -1052,7 +1056,9 @@ class Component extends DCLogic {
     credEnviado: false,
     pwActual: '', pwNueva: '', pwCambiada: false,
     loginEmail: '',
-    loginNote: false,
+    loginPass: '',
+    loginError: '',
+    entrando: false,
     datosGuardados: false,
     comunicadoEnviado: false,
     comAsunto: '', comMensaje: '', comDestinatarios: 'todos',
@@ -1344,8 +1350,10 @@ class Component extends DCLogic {
 
   componentDidMount() {
     try {
+      // Los accesos directos ?modo= son solo para la demostración.
+      // Con la base de datos conectada SIEMPRE hay que iniciar sesión.
       const modo = new URLSearchParams(window.location.search).get('modo');
-      if (modo === 'hermano' || modo === 'admin') this.setView(modo);
+      if (!this.conectado && (modo === 'hermano' || modo === 'admin')) this.setView(modo);
     } catch(e) {}
     this._onResize = () => this.setState({ isMobile: window.innerWidth < 760 });
     window.addEventListener('resize', this._onResize);
@@ -1355,12 +1363,68 @@ class Component extends DCLogic {
     if (this._onResize) window.removeEventListener('resize', this._onResize);
   }
 
+  // ¿Hay Supabase configurado? (supabase-config.js relleno)
+  get conectado() { return !!(window.API && window.API.activo); }
+
+  // Inicio de sesión real. Si no hay Supabase configurado, avisa en lugar
+  // de dejar pasar a nadie sin contraseña.
+  async iniciarSesion() {
+    if (this.state.entrando) return;
+    const email = (this.state.loginEmail || '').trim();
+    const pass = this.state.loginPass || '';
+
+    if (!email || !pass) {
+      this.setState({ loginError: 'Escribe tu correo y tu contraseña.' });
+      return;
+    }
+    if (!this.conectado) {
+      this.setState({ loginError: 'La base de datos aún no está conectada. Usa los accesos de demostración de abajo.' });
+      return;
+    }
+
+    this.setState({ entrando: true, loginError: '' });
+    try {
+      await window.API.login(email, pass);
+      const yo = await window.API.yo();
+      if (!yo) throw new Error('Tu usuario no está dado de alta en el censo. Avisa a Secretaría.');
+
+      this.setState({
+        entrando: false,
+        loginPass: '',
+        loginError: '',
+        view: yo.rol === 'admin' ? 'admin' : 'hermano',
+        hTab: 'resumen', aTab: 'panel',
+        hermano: {
+          ...this.state.hermano,
+          id: yo.id, num: yo.num, nombre: yo.nombre,
+          dni: yo.dni || '', email: yo.email || email,
+          tel: yo.telefono || '', dir: yo.direccion || '', iban: yo.iban || '',
+        },
+      });
+
+      if (yo.debe_cambiar_password) {
+        this.setState({ hTab: 'datos' });
+        setTimeout(() => alert('Por seguridad, cambia tu contraseña inicial desde «Mis datos».'), 400);
+      }
+    } catch (e) {
+      const msg = String(e.message || e);
+      this.setState({
+        entrando: false,
+        loginError: /invalid login/i.test(msg)
+          ? 'Correo o contraseña incorrectos.'
+          : msg,
+      });
+    }
+  }
+
   // Cerrar sesión: deshace también la suplantación de "Ver su portal"
   logout() {
+    if (this.conectado) { try { window.API.logout(); } catch(e) {} }
     this.setState(s => ({
       hermano: s.hermanoOriginal || s.hermano,
       hermanoOriginal: null,
       view: 'login', hTab: 'resumen', aTab: 'panel',
+      loginPass: '', loginError: '', entrando: false,
     }));
     try { document.documentElement.scrollTop = 0; document.body.scrollTop = 0; } catch(e) {}
   }
@@ -1448,9 +1512,18 @@ class Component extends DCLogic {
 
       // login
       loginEmail: this.state.loginEmail,
-      onLoginEmail: (e)=>this.setState({ loginEmail:e.target.value }),
-      loginNote: this.state.loginNote,
-      doSignIn: ()=>this.setState({ loginNote:true }),   // TODO: supabase.auth.signInWithPassword
+      onLoginEmail: (e)=>this.setState({ loginEmail:e.target.value, loginError:'' }),
+      loginPass: this.state.loginPass,
+      onLoginPass: (e)=>this.setState({ loginPass:e.target.value, loginError:'' }),
+      onLoginKey: (e)=>{ if (e.key === 'Enter') this.iniciarSesion(); },
+      doSignIn: ()=>this.iniciarSesion(),
+      loginBtnLabel: this.state.entrando ? 'Entrando…' : 'Iniciar sesión',
+      loginError: !!this.state.loginError,
+      loginErrorMsg: this.state.loginError,
+      modoDemo: !this.conectado,
+      pieLogin: this.conectado
+        ? 'Acceso protegido · Supabase Auth'
+        : 'MAQUETA · pendiente de conectar la base de datos',
       demoHermano: ()=>this.setView('hermano'),
       demoAdmin: ()=>this.setView('admin'),
       logout: ()=>this.logout(),                          // TODO: supabase.auth.signOut
@@ -1523,9 +1596,12 @@ class Component extends DCLogic {
       onPwActual: (e)=>this.setState({ pwActual:e.target.value, pwCambiada:false }),
       onPwNueva: (e)=>this.setState({ pwNueva:e.target.value, pwCambiada:false }),
       pwCambiada: this.state.pwCambiada,
-      // TODO Supabase: supabase.auth.updateUser({ password: pwNueva })
-      cambiarPassword: () => {
+      cambiarPassword: async () => {
         if (!this.state.pwNueva || this.state.pwNueva.length < 6) { alert('La nueva contraseña debe tener al menos 6 caracteres.'); return; }
+        if (this.conectado) {
+          try { await window.API.cambiarPassword(this.state.pwNueva); }
+          catch (e) { alert('No se ha podido cambiar la contraseña: ' + (e.message || e)); return; }
+        }
         this.setState({ pwCambiada:true, pwActual:'', pwNueva:'' });
       },
 
