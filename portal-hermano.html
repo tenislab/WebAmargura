@@ -5,14 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
   /* Claves de Supabase incrustadas: así funcionan aunque el navegador tenga
-     en caché una versión antigua de los scripts. supabase-config.js puede
-     sobrescribirlas más abajo si algún día cambian. */
+     en caché una versión antigua de los scripts. */
   window.SUPABASE_URL = 'https://aeqpfzkuyawmieonakvo.supabase.co';
   window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcXBmemt1eWF3bWllb25ha3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDMyNTcsImV4cCI6MjEwMjQxOTI1N30.iM8Vq_5RTi7jDp7qL0oPNvYxQmKNH0JsEMg1zpGAv_0';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-config.js?v=3"></script>
-<script src="./supabase-api.js?v=3"></script>
+<script src="./supabase-api.js?v=4"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -45,6 +43,18 @@
         <div style="font-size:12px; letter-spacing:0.5px; color:rgba(240,230,214,0.6); margin-top:4px;">Hermandad de la Amargura · La Línea</div>
         <a href="index.html" style="display:inline-block; margin-top:14px; font-size:11.5px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(240,230,214,0.75); border-bottom:1px solid rgba(213,172,99,0.5); padding-bottom:2px;">← Volver a la web</a>
       </div>
+
+      <sc-if value="{{ haySesion }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF8F1; border-top:3px solid var(--oro,#A8843C); padding:26px 28px; box-shadow:0 24px 60px rgba(0,0,0,0.4); margin-bottom:18px;">
+        <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Sesión iniciada</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:600; color:var(--granate,#6E1423); line-height:1.2;">{{ sesionNombre }}</div>
+        <div style="font-size:12.5px; color:#6b625a; margin-bottom:18px;">{{ sesionRol }}</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div onClick="{{ continuarSesion }}" style="cursor:pointer; text-align:center; padding:13px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700;">Continuar</div>
+          <div onClick="{{ cambiarCuenta }}" style="cursor:pointer; text-align:center; padding:12px; border:1px solid rgba(33,27,22,0.3); color:#4a4038; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Entrar con otra cuenta</div>
+        </div>
+      </div>
+      </sc-if>
 
       <div style="background:#FBF8F1; border-top:3px solid var(--oro,#A8843C); padding:30px 28px; box-shadow:0 24px 60px rgba(0,0,0,0.4);">
         <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Correo electrónico</div>
@@ -274,6 +284,9 @@
   <!-- =====================  MODO ADMIN  ========================= -->
   <!-- ============================================================ -->
   <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ errorCarga }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:12px 20px; background:#a33; color:#fff; font-size:12.5px; line-height:1.5;">{{ errorCarga }}</div>
+  </sc-if>
   <div style="display:flex; flex-direction:{{ adminFlexDir }}; min-height:100vh;">
     <!-- sidebar -->
     <div style="width:{{ sidebarWidth }}; flex-shrink:0; background:#3A0C11; color:#E8DBC6; position:{{ sidebarPos }}; top:0; height:{{ sidebarHeight }}; display:flex; flex-direction:column; z-index:40;">
@@ -1071,6 +1084,8 @@ class Component extends DCLogic {
     credEnviado: false,
     cargando: false,
     suplantando: false,
+    errorCarga: '',
+    sesionAbierta: null,
     pwActual: '', pwNueva: '', pwCambiada: false,
     loginEmail: '',
     loginPass: '',
@@ -1352,6 +1367,8 @@ class Component extends DCLogic {
         credEnviado: false,
     cargando: false,
     suplantando: false,
+    errorCarga: '',
+    sesionAbierta: null,
       };
     });
   }
@@ -1501,7 +1518,8 @@ class Component extends DCLogic {
         const yo = await window.API.yo();
         if (yo) {
           this.setState({
-            view: yo.rol === 'admin' ? 'admin' : 'hermano',
+            sesionAbierta: yo,
+            view: 'login',   // no entramos solos: que elija
             hermano: {
               ...this.state.hermano,
               id: yo.id, num: yo.num, nombre: yo.nombre,
@@ -1541,18 +1559,25 @@ class Component extends DCLogic {
     if (!this.conectado) return;
     this.setState({ cargando: true });
     try {
+      const fallos = [];
+      const pedir = (nombre, p) => p.catch(e => {
+        fallos.push(nombre + ': ' + (e.message || e));
+        console.error('[Amargura] ' + nombre, e);
+        return null;
+      });
+
       const [censo, cuotas, donativos, noticias, cultos, paginas, boletines, fotos, campania, bizum] =
         await Promise.all([
-          window.API.censo().catch(() => null),
-          window.API.cuotas().catch(() => null),
-          window.API.donativos().catch(() => null),
-          window.API.noticias().catch(() => null),
-          window.API.cultos().catch(() => null),
-          window.API.paginas().catch(() => null),
-          window.API.boletines().catch(() => null),
-          window.API.fotosPortada().catch(() => null),
-          window.API.campaniaActiva().catch(() => null),
-          window.API.ajuste('bizum_numero').catch(() => null),
+          pedir('censo', window.API.censo()),
+          pedir('cuotas', window.API.cuotas()),
+          pedir('donativos', window.API.donativos()),
+          pedir('noticias', window.API.noticias()),
+          pedir('cultos', window.API.cultos()),
+          pedir('páginas', window.API.paginas()),
+          pedir('boletines', window.API.boletines()),
+          pedir('fotos', window.API.fotosPortada()),
+          pedir('campaña', window.API.campaniaActiva()),
+          pedir('ajustes', window.API.ajuste('bizum_numero')),
         ]);
 
       const nuevo = { cargando: false };
@@ -1595,6 +1620,7 @@ class Component extends DCLogic {
 
       if (bizum) nuevo.bizumNumero = bizum;
 
+      nuevo.errorCarga = fallos.length ? ('No se han podido cargar: ' + fallos.join(' · ')) : '';
       this.setState(nuevo);
     } catch (e) {
       console.error('[Amargura] Error al cargar datos:', e);
@@ -1670,6 +1696,7 @@ class Component extends DCLogic {
   // Cerrar sesión: deshace también la suplantación de "Ver su portal"
   async logout() {
     if (this.conectado) { try { await window.API.logout(); } catch(e) {} }
+    this.setState({ sesionAbierta: null });
     this.setState(s => ({
       hermano: s.hermanoOriginal || s.hermano,
       hermanoOriginal: null,
@@ -2010,6 +2037,29 @@ class Component extends DCLogic {
       enviarCredenciales: () => this.enviarCredenciales(),
       cerrarCredenciales: () => this.cerrarCredenciales(),
       suplantando: !!this.state.suplantando,
+      errorCarga: this.state.errorCarga || '',
+      haySesion: !!this.state.sesionAbierta,
+      sesionNombre: this.state.sesionAbierta ? this.state.sesionAbierta.nombre : '',
+      sesionRol: this.state.sesionAbierta
+        ? (this.state.sesionAbierta.rol === 'admin' ? 'Administración · Secretaría' : 'Hermano nº ' + this.state.sesionAbierta.num)
+        : '',
+      continuarSesion: () => {
+        const yo = this.state.sesionAbierta;
+        if (!yo) return;
+        this.setState({
+          view: yo.rol === 'admin' ? 'admin' : 'hermano',
+          hermano: {
+            ...this.state.hermano,
+            id: yo.id, num: yo.num, nombre: yo.nombre, dni: yo.dni || '',
+            email: yo.email || '', tel: yo.telefono || '',
+            dir: yo.direccion || '', iban: yo.iban || '',
+          },
+        });
+      },
+      cambiarCuenta: async () => {
+        if (this.conectado) { try { await window.API.logout(); } catch(e) {} }
+        this.setState({ sesionAbierta:null, loginEmail:'', loginPass:'', loginError:'' });
+      },
       volverAdmin: () => this.setState(s => ({
         hermano: s.hermanoOriginal || s.hermano,
         hermanoOriginal: null, suplantando: false,
