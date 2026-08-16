@@ -3,9 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-config.js"></script>
-<script src="./supabase-api.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -83,6 +80,13 @@
       <a href="index.html" style="padding:8px 14px; border:1px solid rgba(232,219,198,0.35); font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#E8DBC6; white-space:nowrap;">← Ir a la web</a>
       <div onClick="{{ logout }}" style="cursor:pointer; padding:8px 14px; border:1px solid rgba(232,219,198,0.35); font-size:11px; letter-spacing:1px; text-transform:uppercase;">Salir</div>
     </div>
+
+    <sc-if value="{{ suplantando }}" hint-placeholder-val="{{ false }}">
+      <div style="background:var(--oro,#A8843C); color:#2a0810; padding:11px 22px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; font-size:13px;">
+        <span style="font-weight:700;">Estás viendo el portal de {{ h.nombre }} como Secretaría.</span>
+        <div onClick="{{ volverAdmin }}" style="cursor:pointer; margin-left:auto; padding:7px 14px; border:1px solid rgba(42,8,16,0.45); font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700; white-space:nowrap;">← Volver a Administración</div>
+      </div>
+    </sc-if>
 
     <div style="max-width:1040px; margin:0 auto; padding:26px 22px 60px;">
       <!-- tabs -->
@@ -752,7 +756,7 @@ class Component extends DCLogic {
   //       cuotas(id, hermano_id, anio, concepto, importe, estado, fecha)
   //       papeletas(id, hermano_id, anio, cuerpo, paso, obs, estado)
   //       documentos(id, hermano_id, nombre, tipo, url)   // url -> Supabase Storage
-  //  4) Sustituir los métodos db.* de abajo por consultas supabase.from('...').select()
+  //  4) Las consultas están en supabase-api.js (window.API)
   //  5) PAGOS — de momento SOLO BIZUM (decisión del cliente).
   //     Bizum se contrata con el banco de la Hermandad y NO tiene webhook,
   //     así que el circuito real es semiautomático y ya está montado así:
@@ -793,8 +797,8 @@ class Component extends DCLogic {
       { dia:'26', mes:'Mar', titulo:'Cabildo General Extraordinario', detalle:'19:00 h · Casa Hermandad' },
       { dia:'02', mes:'Abr', titulo:'Estación de Penitencia', detalle:'Miércoles Santo · Salida' },
     ],
-    // Contenido REAL y completo de cada página de la web, editable campo a campo.
-    // TODO Supabase: tabla 'paginas' (slug, antetitulo, titulo, entradilla, bloques jsonb, fotos jsonb)
+    // Contenido de respaldo para el modo demostración. Con Supabase conectado
+    // estos valores se sustituyen por los de la tabla 'paginas'.
     paginaSel: 0,
     pagGuardado: false,
     paginas: [
@@ -1056,6 +1060,7 @@ class Component extends DCLogic {
     cred: null,
     credEnviado: false,
     cargando: false,
+    suplantando: false,
     pwActual: '', pwNueva: '', pwCambiada: false,
     loginEmail: '',
     loginPass: '',
@@ -1080,7 +1085,7 @@ class Component extends DCLogic {
     // ÚNICA fuente de verdad de los recibos: la Secretaría y el hermano leen
     // esta misma tabla, así que marcar un pago en Administración se refleja
     // al instante en el Portal de ese hermano.
-    // TODO Supabase: tabla 'cuotas' (hermano_num, concepto, importe, estado, metodo_pago, fecha_pago)
+    // Con Supabase conectado se sustituyen por la tabla 'cuotas'.
     cuotas: [
       { id:1, hermanoNum:'428', concepto:'Cuota anual 2026', detalle:'Domiciliada · 31/01/2026', importe:'30,00 €', estado:'Pagado' },
       { id:2, hermanoNum:'428', concepto:'Cuota anual 2025', detalle:'Domiciliada · 31/01/2025', importe:'30,00 €', estado:'Pagado' },
@@ -1249,8 +1254,8 @@ class Component extends DCLogic {
     });
   }
 
-  // Sube el PDF real: se guarda su URL para poder abrirlo y descargarlo.
-  // TODO Supabase: subir a Storage (bucket 'boletines') y guardar la public URL.
+  // Sube el PDF real. Con Supabase conectado va al Storage (bucket 'web');
+  // sin conectar, queda solo en el navegador (modo demostración).
   addBoletin(e) {
     const file = e && e.target && e.target.files && e.target.files[0];
     if (!file) return;
@@ -1336,6 +1341,7 @@ class Component extends DCLogic {
         cred: { nombre: c.nombre, usuario: dni },
         credEnviado: false,
     cargando: false,
+    suplantando: false,
       };
     });
   }
@@ -1347,7 +1353,13 @@ class Component extends DCLogic {
       if (!c) return null;
       return {
         hermanoOriginal: s.hermanoOriginal || s.hermano,
-        hermano: { ...s.hermano, num: c.num, nombre: c.nombre, dni: c.dni || s.hermano.dni },
+        hermano: {
+          ...s.hermano,
+          id: c.id, num: c.num, nombre: c.nombre,
+          dni: c.dni || '', email: c.email || '',
+          tel: c.telefono || '', dir: c.direccion || '', iban: c.iban || '',
+        },
+        suplantando: true,
         view: 'hermano', hTab: 'cuotas',
       };
     });
@@ -1370,8 +1382,6 @@ class Component extends DCLogic {
     this.setState(s => {
       const nombre = s.af.nombre || 'Nuevo hermano';
       const dni = (s.af.dni || '').toUpperCase().trim();
-      // TODO Supabase: supabase.auth.admin.createUser({ email, password: dni,
-      //   user_metadata:{ hermano_num, must_change_password:true } })
       const num = s.af.num || String(Date.now()).slice(-3);
       return {
         censo:[{ num, nombre, desde:'Alta 2026', estado:'Al corriente', dni, acceso: !!dni }, ...s.censo],
@@ -1386,11 +1396,15 @@ class Component extends DCLogic {
     });
   }
   quitarHermano(num) {
-    if (this.conectado) {
-      const h = this.state.censo.find(c => c.num === num);
-      if (h) return this.sync(() => window.API.bajaHermano(h.id));
-    }
-    this.setState(s => ({ censo: s.censo.filter(c => c.num !== num) }));
+    const h = this.state.censo.find(c => c.num === num);
+    if (!confirm('¿Dar de baja a ' + (h ? h.nombre : 'este hermano') + '?\n\nDesaparecerá del censo y sus recibos pendientes dejarán de aparecer en Cuotas.')) return;
+    if (this.conectado && h) return this.sync(() => window.API.bajaHermano(h.id));
+    // En demostración: quitar al hermano Y todas sus cuotas y donativos
+    this.setState(s => ({
+      censo: s.censo.filter(c => c.num !== num),
+      cuotas: s.cuotas.filter(c => c.hermanoNum !== num),
+      donativos: s.donativos.filter(d => d.hermanoNum !== num),
+    }));
   }
   exportarCenso() {
     const alCorriente = (num) => !this.state.cuotas.some(c => c.hermanoNum === num && c.estado === 'Pendiente');
@@ -1610,7 +1624,7 @@ class Component extends DCLogic {
     try {
       await window.API.login(email, pass);
       const yo = await window.API.yo();
-      if (!yo) throw new Error('Tu usuario no está dado de alta en el censo. Avisa a Secretaría.');
+      if (!yo) throw new Error('Has entrado, pero tu usuario no está enlazado a ninguna ficha del censo. Avisa a Secretaría.');
 
       this.setState({
         entrando: false,
@@ -1644,11 +1658,12 @@ class Component extends DCLogic {
   }
 
   // Cerrar sesión: deshace también la suplantación de "Ver su portal"
-  logout() {
-    if (this.conectado) { try { window.API.logout(); } catch(e) {} }
+  async logout() {
+    if (this.conectado) { try { await window.API.logout(); } catch(e) {} }
     this.setState(s => ({
       hermano: s.hermanoOriginal || s.hermano,
       hermanoOriginal: null,
+      suplantando: false,
       view: 'login', hTab: 'resumen', aTab: 'panel',
       loginPass: '', loginError: '', entrando: false,
     }));
@@ -1663,9 +1678,8 @@ class Component extends DCLogic {
   confirmarPago() {
     if (this.state.pagoProcesando) return;
     this.setState({ pagoProcesando:true });
-    // Bizum no tiene webhook: esto solo avisa a Secretaría. El recibo lo
-    // confirma ella con "✓ Pagado" al ver el ingreso en el banco.
-    // TODO Supabase: INSERT en 'avisos_pago' (cuota_id, hermano_id, fecha).
+    // Bizum no tiene webhook: esto solo avisa a Secretaría (tabla 'avisos_pago').
+    // El recibo lo confirma ella con "✓ Pagado" al ver el ingreso en el banco.
     if (this.conectado) {
       const cuotaId = this.state.pagoAbierto;
       this.sync(() => window.API.avisarBizum(cuotaId, this.state.hermano.id))
@@ -1758,7 +1772,7 @@ class Component extends DCLogic {
         : 'MAQUETA · pendiente de conectar la base de datos',
       demoHermano: ()=>this.setView('hermano'),
       demoAdmin: ()=>this.setView('admin'),
-      logout: ()=>this.logout(),                          // TODO: supabase.auth.signOut
+      logout: ()=>this.logout(),
 
       isMobile,
       adminFlexDir: cols('column','row'),
@@ -1985,6 +1999,12 @@ class Component extends DCLogic {
       credEnvioLabel: this.state.credEnviado ? '✓ Enviado por correo' : 'Enviar por correo',
       enviarCredenciales: () => this.enviarCredenciales(),
       cerrarCredenciales: () => this.cerrarCredenciales(),
+      suplantando: !!this.state.suplantando,
+      volverAdmin: () => this.setState(s => ({
+        hermano: s.hermanoOriginal || s.hermano,
+        hermanoOriginal: null, suplantando: false,
+        view: 'admin', aTab: 'hermanos',
+      })),
       af: {
         nombre: this.state.af.nombre, num: this.state.af.num,
         dni: this.state.af.dni, email: this.state.af.email,

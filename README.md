@@ -12,7 +12,10 @@ de María Santísima de la Amargura.
 | `support.js` | Runtime necesario para ambas páginas |
 | `supabase-config.js` | **Aquí pones tus claves de Supabase** |
 | `supabase-api.js` | Capa de datos: todas las consultas a la base de datos |
-| `supabase-schema.sql` | Script que crea todas las tablas, permisos y contenido inicial |
+| `supabase-schema.sql` | **1º** — crea tablas, permisos y Storage |
+| `supabase-usuarios.sql` | **2º** — crea las cuentas de administrador y hermano |
+| `supabase-contenido.sql` | **3º** — vuelca los textos y fotos de la web |
+| `vercel.json` | Configuración de despliegue y cabeceras de seguridad |
 | `supabase/functions/crear-hermano/` | Función de servidor para dar de alta hermanos con acceso |
 | `assets/` | Imágenes propias de la Hermandad |
 
@@ -27,11 +30,27 @@ de María Santísima de la Amargura.
 3. Región: **West EU (Ireland)** — la más cercana a España
 4. Guarda bien la contraseña de la base de datos que te pida
 
-## Paso 2 · Crear las tablas
+## Paso 2 · Crear las tablas y los datos
 
-1. Menú lateral → **SQL Editor** → **New query**
-2. Abre `supabase-schema.sql`, copia **todo** el contenido y pégalo
-3. Pulsa **RUN**
+En **SQL Editor → New query**, ejecuta estos tres archivos **en este orden**:
+
+| Orden | Archivo | Qué hace |
+|---|---|---|
+| 1 | `supabase-schema.sql` | Crea las 12 tablas, los permisos (RLS) y el Storage |
+| 2 | `supabase-usuarios.sql` | Crea la cuenta de administrador y una de hermano de prueba |
+| 3 | `supabase-contenido.sql` | Vuelca todos los textos y fotos de la web |
+
+Al final del tercero verás un recuento para comprobar que ha entrado todo:
+páginas 8 · noticias 6 · cultos 4 · boletines 4 · fotos 5 · hermanos 7 · cuotas 10.
+
+### Cuentas que se crean
+
+| | Correo | Contraseña |
+|---|---|---|
+| **Secretaría** | `secretaria@hermandadamargura.es` | `Amargura2026!` |
+| **Hermano de prueba** | `hermano@hermandadamargura.es` | `Hermano2026!` |
+
+> 🔒 Cambia estas contraseñas antes de abrir la web al público.
 
 Esto crea de una vez:
 
@@ -55,45 +74,7 @@ También activa **Row Level Security**: cada hermano solo puede ver sus propios
 datos, y solo la Secretaría puede cobrar recibos o editar la web. No depende
 del navegador: lo impone la base de datos.
 
-## Paso 3 · Crear el usuario administrador
-
-**3.1 — Crear el usuario**
-
-Supabase → **Authentication** → **Users** → **Add user** → *Create new user*
-
-- Email: `secretaria@hermandadamargura.es`
-- Password: elige una segura y guárdala
-- ✅ Marca **Auto Confirm User**
-
-Copia el **UID** que aparece en la lista.
-
-**3.2 — Convertirlo en administrador**
-
-SQL Editor → nueva consulta, sustituyendo el UUID:
-
-```sql
-insert into public.hermanos
-  (user_id, num, nombre, email, rol, acceso, desde, debe_cambiar_password)
-values
-  ('PEGA-AQUI-EL-UUID',
-   '001',
-   'Secretaría de la Hermandad',
-   'secretaria@hermandadamargura.es',
-   'admin',
-   true,
-   'Administrador',
-   false);
-```
-
-**3.3 — Comprobar**
-
-```sql
-select num, nombre, rol from public.hermanos where rol = 'admin';
-```
-
-Debe devolver una fila.
-
-## Paso 4 · Poner las claves en la web
+## Paso 3 · Poner las claves en la web
 
 Supabase → **Settings** → **API**. Copia los dos valores en `supabase-config.js`:
 
@@ -108,7 +89,7 @@ window.SUPABASE_ANON_KEY = 'eyJhbGciOi...';
 
 Con los campos vacíos la web sigue funcionando en **modo demostración**.
 
-## Paso 5 · Función de alta de hermanos
+## Paso 4 · Función de alta de hermanos
 
 Dar de alta un hermano crea también su usuario, y eso requiere la clave
 `service_role`, que no puede estar en el navegador. Por eso va en una función

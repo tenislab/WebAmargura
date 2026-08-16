@@ -34,7 +34,13 @@
     },
 
     async logout() {
-      await sb.auth.signOut();
+      try { await sb.auth.signOut(); } catch (e) { console.warn(e); }
+      try {
+        // Limpia cualquier resto de sesión guardado por el SDK
+        Object.keys(localStorage)
+          .filter(k => k.startsWith('sb-') && k.includes('auth-token'))
+          .forEach(k => localStorage.removeItem(k));
+      } catch (e) {}
     },
 
     // Devuelve la ficha del hermano conectado, con su rol
@@ -45,9 +51,9 @@
         .from('hermanos')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       if (error) throw error;
-      return data;
+      return data; // null si el usuario no está en el censo
     },
 
     async cambiarPassword(nueva) {
@@ -106,7 +112,8 @@
     async cuotas() {
       const { data, error } = await sb
         .from('cuotas')
-        .select('*, hermanos(num, nombre)')
+        .select('*, hermanos!inner(num, nombre, activo)')
+        .eq('hermanos.activo', true)   // un hermano de baja no arrastra recibos
         .order('id');
       if (error) throw error;
       return data.map(c => ({
