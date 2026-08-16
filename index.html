@@ -8,7 +8,7 @@
   window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcXBmemt1eWF3bWllb25ha3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDMyNTcsImV4cCI6MjEwMjQxOTI1N30.iM8Vq_5RTi7jDp7qL0oPNvYxQmKNH0JsEMg1zpGAv_0';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-api.js?v=9"></script>
+<script src="./supabase-api.js?v=13"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -432,6 +432,68 @@
   </div>
   </sc-if>
 
+
+  <!-- ================= EUROMILLONES ================= -->
+  <sc-if value="{{ isSorteo }}" hint-placeholder-val="{{ false }}">
+  <div>
+    <div style="background:#5E121F; color:#F0E6D6;"><div style="max-width:920px; margin:0 auto; padding:48px 24px;"><div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#C9A25A); margin-bottom:10px;">Colabora</div><h1 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); margin:0; letter-spacing:1px;">Euromillones de la Hermandad</h1></div></div>
+    <div style="max-width:820px; margin:0 auto; padding:56px 24px;">
+      <p style="font-family:'Cormorant Garamond',serif; font-size:19px; line-height:1.7; color:#312a24; margin:0 0 22px;">La Hermandad juega cada semana al Euromillones. Adquiriendo tu participación colaboras con el sostenimiento de nuestros cultos y de la bolsa de caridad, y compartes la ilusión de un premio con toda la corporación.</p>
+      <div style="display:grid; grid-template-columns:{{ g.form2col }}; gap:18px; margin-bottom:26px;">
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.14); border-left:3px solid var(--oro,#A8843C); padding:20px 22px;">
+          <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Participación</div>
+          <div style="font-family:'Cinzel',serif; font-size:26px; color:var(--granate,#6E1423);">3 €</div>
+          <p style="font-size:14px; color:#5a5148; line-height:1.6; margin:8px 0 0;">Dos euros se juegan y un euro queda íntegro para la Hermandad.</p>
+        </div>
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.14); border-left:3px solid var(--oro,#A8843C); padding:20px 22px;">
+          <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#8a7d6e; margin-bottom:6px;">Dónde conseguirla</div>
+          <p style="font-size:14px; color:#5a5148; line-height:1.6; margin:0;">En la Casa Hermandad durante el horario de secretaría, o solicitándola por WhatsApp al <strong>623 200 617</strong>.</p>
+        </div>
+      </div>
+      <p style="font-family:'Cormorant Garamond',serif; font-size:17px; line-height:1.7; color:#5a5148; margin:0;">El resultado del sorteo se publica cada semana en nuestras redes sociales. Los premios se abonan en la Casa Hermandad presentando la participación original.</p>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= PUBLICÍTATE ================= -->
+  <sc-if value="{{ isPublicidad }}" hint-placeholder-val="{{ false }}">
+  <div>
+    <div style="background:#5E121F; color:#F0E6D6;"><div style="max-width:920px; margin:0 auto; padding:48px 24px;"><div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#C9A25A); margin-bottom:10px;">Colabora</div><h1 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); margin:0; letter-spacing:1px;">Publicítate con nosotros</h1></div></div>
+    <div style="max-width:820px; margin:0 auto; padding:56px 24px;">
+      <p style="font-family:'Cormorant Garamond',serif; font-size:19px; line-height:1.7; color:#312a24; margin:0 0 26px;">Tu comercio puede acompañar a la Hermandad y llegar a cientos de familias de La Línea. Los ingresos por publicidad se destinan íntegramente al mantenimiento de nuestro patrimonio y a la labor asistencial.</p>
+      <div style="display:grid; grid-template-columns:{{ g.form2col }}; gap:18px; margin-bottom:28px;">
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.14); padding:22px;">
+          <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--granate,#6E1423); margin-bottom:8px;">Boletín anual</div>
+          <p style="font-size:14.5px; color:#5a5148; line-height:1.65; margin:0;">Publicación impresa que se reparte entre todos los hermanos en Cuaresma. Espacios desde media página a contraportada.</p>
+        </div>
+        <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.14); padding:22px;">
+          <div style="font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; color:var(--granate,#6E1423); margin-bottom:8px;">Web y redes</div>
+          <p style="font-size:14.5px; color:#5a5148; line-height:1.65; margin:0;">Presencia de tu marca en esta web y menciones en nuestras redes sociales durante la temporada.</p>
+        </div>
+      </div>
+      <p style="font-family:'Cormorant Garamond',serif; font-size:17px; line-height:1.7; color:#312a24; margin:0 0 20px;">Para conocer las tarifas y los formatos disponibles, escríbenos y te enviaremos el dossier de colaboración.</p>
+      <div onClick="{{ goContacto }}" style="cursor:pointer; display:inline-block; padding:15px 32px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700;">Solicitar información</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= PRIVACIDAD ================= -->
+  <sc-if value="{{ isPrivacidad }}" hint-placeholder-val="{{ false }}">
+  <div>
+    <div style="background:#5E121F; color:#F0E6D6;"><div style="max-width:920px; margin:0 auto; padding:48px 24px;"><div style="font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--oro,#C9A25A); margin-bottom:10px;">Información legal</div><h1 style="font-family:'Cinzel',serif; font-weight:600; font-size:clamp(26px,3.6vw,40px); margin:0; letter-spacing:1px;">Política de privacidad</h1></div></div>
+    <div style="max-width:760px; margin:0 auto; padding:56px 24px;">
+      <p style="font-size:15px; line-height:1.75; color:#3a332c; margin:0 0 22px;">En cumplimiento del Reglamento (UE) 2016/679 de Protección de Datos y de la Ley Orgánica 3/2018, te informamos del tratamiento que hacemos de tus datos personales.</p>
+      <sc-for list="{{ privacidad }}" as="s" hint-placeholder-count="6">
+        <div style="border-top:1px solid rgba(33,27,22,0.14); padding:18px 0;">
+          <div style="font-family:'Cinzel',serif; font-size:14px; letter-spacing:1px; color:var(--granate,#6E1423); margin-bottom:7px;">{{ s.titulo }}</div>
+          <p style="font-size:14.5px; line-height:1.7; color:#4a4038; margin:0;">{{ s.texto }}</p>
+        </div>
+      </sc-for>
+      <p style="font-size:13px; color:#8a7d6e; margin:26px 0 0; line-height:1.6;">Última actualización: agosto de 2026.</p>
+    </div>
+  </div>
+  </sc-if>
+
   <!-- ================= BOLETINES ================= -->
   <sc-if value="{{ isBoletines }}" hint-placeholder-val="{{ false }}">
   <div>
@@ -605,6 +667,10 @@
         <a href="https://www.instagram.com/amarguralalinea/" target="_blank" rel="noopener">Instagram</a>
         <a href="https://www.facebook.com/SacramentalYRealHermandaddelaAmargura/" target="_blank" rel="noopener">Facebook</a>
       </div>
+      <div style="border-top:1px solid rgba(217,203,182,0.18); padding-top:18px; display:flex; gap:18px; justify-content:center; flex-wrap:wrap; font-size:11.5px; color:rgba(217,203,182,0.55);">
+        <span>© 2026 Hermandad de la Amargura</span>
+        <span onClick="{{ goPrivacidad }}" style="cursor:pointer; text-decoration:underline;">Política de privacidad</span>
+      </div>
     </div>
   </div>
 
@@ -762,6 +828,18 @@ class Component extends DCLogic {
       isJunta: p==='junta', isTemplo: p==='templo', isCasa: p==='casa', isHeraldica: p==='heraldica',
       isCaridad: p==='caridad', isGrupoJoven: p==='grupojoven', isActualidad: p==='actualidad',
       isBoletines: p==='boletines', isHazte: p==='hazte', isContacto: p==='contacto',
+      isSorteo: p==='sorteo', isPublicidad: p==='publicidad', isPrivacidad: p==='privacidad',
+      goSorteo: () => this.nav('sorteo'),
+      goPublicidad: () => this.nav('publicidad'),
+      goPrivacidad: () => this.nav('privacidad'),
+      privacidad: [
+        { titulo:'RESPONSABLE', texto:'Sacramental y Real Hermandad de la Amargura, con domicilio en Calle Isabel la Católica 34, La Línea de la Concepción (Cádiz).' },
+        { titulo:'FINALIDAD', texto:'Gestionar el censo de hermanos, el cobro de cuotas y donativos, la emisión de papeletas de sitio y el envío de convocatorias y comunicaciones propias de la Hermandad.' },
+        { titulo:'LEGITIMACIÓN', texto:'La pertenencia a la Hermandad y el consentimiento expreso prestado en el formulario de alta. En el caso de los formularios de contacto, el consentimiento del interesado.' },
+        { titulo:'CONSERVACIÓN', texto:'Los datos se conservan mientras se mantenga la condición de hermano y, tras la baja, durante los plazos legalmente exigidos.' },
+        { titulo:'DESTINATARIOS', texto:'No se ceden datos a terceros salvo obligación legal o a las entidades bancarias necesarias para gestionar los recibos domiciliados.' },
+        { titulo:'DERECHOS', texto:'Puedes ejercer los derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a la Secretaría de la Hermandad o a través del formulario de contacto de esta web.' },
+      ],
       isNoticia: p==='noticia', isJovenAlta: p==='jovenalta',
       showFab: p!=='hazte' && p!=='jovenalta',
       caridadHeroH: cols('300px','440px'),
@@ -793,6 +871,7 @@ class Component extends DCLogic {
         mk('Titulares','titulares'), mk('Historia','historia'), mk('Secretaría','contacto'),
         mk('Junta de Gobierno','junta'), mk('Sede Canónica','templo'), mk('Casa Hermandad','casa'),
         mk('Heráldica','heraldica'), mk('Caridad','caridad'), mk('Grupo Joven','grupojoven'),
+        mk('Euromillones','sorteo'), mk('Publicítate','publicidad'),
       ],
 
       hermanoSent: this.state.hermanoSent,

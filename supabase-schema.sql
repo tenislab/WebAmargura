@@ -256,9 +256,44 @@ drop policy if exists "hermano ve su ficha" on public.hermanos;
 create policy "hermano ve su ficha" on public.hermanos
   for select using (user_id = auth.uid() or public.es_admin());
 
+-- OJO: hace falta WITH CHECK además de USING. Sin él, un hermano podría
+-- editar su propia ficha y ponerse rol='admin'.
 drop policy if exists "hermano edita su ficha" on public.hermanos;
 create policy "hermano edita su ficha" on public.hermanos
-  for update using (user_id = auth.uid() or public.es_admin());
+  for update
+  using      (user_id = auth.uid() or public.es_admin())
+  with check (user_id = auth.uid() or public.es_admin());
+
+-- Y aunque la fila siga siendo suya, no puede tocar los campos delicados.
+create or replace function public.protege_campos_hermano()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $BODY$
+begin
+  if public.es_admin() then
+    return new;
+  end if;
+  new.rol     := old.rol;
+  new.user_id := old.user_id;
+  new.num     := old.num;
+  new.activo  := old.activo;
+  new.acceso  := old.acceso;
+  new.desde   := old.desde;
+  return new;
+end;
+$BODY$;
+
+drop trigger if exists protege_campos_hermano on public.hermanos;
+create trigger protege_campos_hermano
+  before update on public.hermanos
+  for each row execute function public.protege_campos_hermano();
+
+-- Solo la Secretaría da altas: que nadie se añada al censo por su cuenta.
+drop policy if exists "solo admin da de alta" on public.hermanos;
+create policy "solo admin da de alta" on public.hermanos
+  for insert with check (public.es_admin());
 
 drop policy if exists "admin gestiona el censo" on public.hermanos;
 create policy "admin gestiona el censo" on public.hermanos

@@ -23,6 +23,28 @@ de María Santísima de la Amargura.
 
 # 1. Conectar Supabase
 
+
+## 🔒 Seguridad — importante
+
+Ejecuta **una vez** `supabase/SEGURIDAD.sql` en el SQL Editor.
+
+Corrige una escalada de privilegios: la política de edición comprobaba qué
+fila se tocaba pero no qué valores se escribían, así que un hermano podía
+hacerse administrador editando su propia ficha. El parche añade el
+`WITH CHECK` que faltaba y un disparador que protege los campos delicados
+(rol, número de hermano, alta y baja).
+
+Antes de abrir la web al público:
+
+- [ ] Ejecutar `supabase/SEGURIDAD.sql`
+- [ ] Cambiar las dos contraseñas por defecto
+- [ ] Borrar el hermano de prueba
+- [ ] Revisar los textos con la Junta de Gobierno
+
+La clave `anon` que aparece en el HTML es pública por diseño: no da acceso a
+nada por sí sola, todo lo protegen las políticas RLS. La clave `service_role`
+**nunca** debe aparecer en el navegador.
+
 ## Paso 1 · Crear el proyecto
 
 1. Entra en [supabase.com](https://supabase.com) → **New project**

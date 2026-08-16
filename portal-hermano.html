@@ -8,7 +8,7 @@
   window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcXBmemt1eWF3bWllb25ha3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NDMyNTcsImV4cCI6MjEwMjQxOTI1N30.iM8Vq_5RTi7jDp7qL0oPNvYxQmKNH0JsEMg1zpGAv_0';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-api.js?v=9"></script>
+<script src="./supabase-api.js?v=13"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -406,6 +406,13 @@
               <div onClick="{{ guardarBorrador }}" style="padding:12px 20px; border-radius:7px; border:1px solid rgba(33,27,22,0.22); font-size:12px; font-weight:600; color:#4a4038; cursor:pointer;">Guardar borrador</div>
             </div>
           </div>
+          </sc-if>
+          <sc-if value="{{ sinNoticias }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FBF8F1; border:1px dashed rgba(33,27,22,0.22); border-radius:12px; padding:34px 26px; text-align:center;">
+              <div style="font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:600; color:var(--granate,#6E1423); margin-bottom:6px;">Todavía no hay noticias guardadas</div>
+              <div style="font-size:13px; color:#6b625a; line-height:1.6; margin-bottom:18px;">Crea una nueva, o carga de golpe las seis que ya estaban publicadas en la web.</div>
+              <div onClick="{{ importarNoticias }}" style="display:inline-block; cursor:pointer; padding:12px 24px; border-radius:7px; background:var(--granate,#6E1423); color:#F0E6D6; font-size:11.5px; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Cargar las noticias de la web</div>
+            </div>
           </sc-if>
           <div style="background:#FBF8F1; border:1px solid rgba(33,27,22,0.12); border-radius:12px; overflow:hidden;">
             <sc-for list="{{ cNoticias }}" as="n" hint-placeholder-count="5">
@@ -1224,6 +1231,55 @@ class Component extends DCLogic {
 
   setNf(k, v) { this.setState(s => ({ nf:{...s.nf, [k]:v} })); }
 
+  // Las 6 noticias que ya estaban en la web, por si la tabla está vacía
+  noticiasDeArranque() {
+    return [
+      { titulo:'Procesión del Santísimo Sacramento', fecha:'21 Junio 2025',
+        imagen_url:'https://hermandadamargura.es/images/1024/17115483/WhatsApp-Image-2025-06-15-at-20.32.59-5i_7AiY1W2cA7rp5OVoxcQ.jpeg',
+        texto:'La Hermandad, de carácter sacramental desde su fundación, organiza cada año la Solemne Procesión del Santísimo Sacramento por las calles de la feligresía del Santuario de la Inmaculada Concepción.\n\nEl cortejo saldrá a las 20:00 horas, acompañado por los hermanos con cirio y la Junta de Gobierno presidiendo bajo pertiguero.\n\nLos vecinos que deseen adornar sus balcones con colgaduras pueden solicitarlas en la Casa Hermandad durante la semana previa.' },
+      { titulo:'I Torrijada Solidaria', fecha:'14 Marzo 2026',
+        imagen_url:'https://hermandadamargura.es/images/971/24031242/Capturadepantalla2026-03-14alas2.08.53-hkPjXdtl5ecnY1HkO24LcQ.png',
+        texto:'La Hermandad celebra su I Torrijada Solidaria en la Casa Hermandad, con torrijas elaboradas artesanalmente por hermanos y colaboradores de la corporación.\n\nLa recaudación íntegra se destinará a la bolsa de caridad, que colabora de forma permanente con Cáritas Parroquial.\n\nHabrá servicio de barra y venta para llevar.' },
+      { titulo:'Convocatoria de Cabildo General', fecha:'02 Febrero 2026',
+        imagen_url:'https://hermandadamargura.es/images/1024/16997712/0694d45a-540d-47ce-b14d-1160f495349d-6lNBMDaS5u60cc2w3hQHlg.JPG',
+        texto:'Por orden del Hermano Mayor, y de conformidad con nuestras Reglas, se convoca a todos los hermanos mayores de 18 años con al menos un año de antigüedad al Cabildo General Ordinario de cuentas.\n\nTendrá lugar en la Casa Hermandad en primera convocatoria a las 19:00 horas y en segunda a las 19:30 horas.\n\nLos hermanos podrán consultar el estado de cuentas en Secretaría durante los cinco días previos.' },
+      { titulo:'Campaña de Caridad', fecha:'10 Enero 2026',
+        imagen_url:'https://hermandadamargura.es/images/1024/17022336/valencia1__01-DkEcWDII3wHfjapcHgp2Zw.JPG',
+        texto:'Durante todo el mes de enero, la Hermandad mantiene abierto el punto de recogida de alimentos en la Casa Hermandad, en horario de secretaría.\n\nSe necesitan especialmente aceite, conservas, legumbres, leche y alimentos infantiles no perecederos.\n\nQuien lo prefiera puede realizar una aportación económica destinada íntegramente a la bolsa de caridad.' },
+      { titulo:'Ayuda a los afectados por la DANA', fecha:'20 Nov 2025',
+        imagen_url:'https://hermandadamargura.es/images/1024/17022336/valencia1__01-DkEcWDII3wHfjapcHgp2Zw.JPG',
+        texto:'Ante la emergencia provocada por la DANA, la Hermandad activó una recogida extraordinaria de material de primera necesidad que superó todas las previsiones.\n\nGracias a la generosidad de hermanos, vecinos y comercios de La Línea se reunieron más de seis palés de material.\n\nDesde la Junta de Gobierno agradecemos la implicación de todos.' },
+      { titulo:'70 aniversario fundacional', fecha:'15 Feb 2025',
+        imagen_url:'https://hermandadamargura.es/images/1024/16917111/IMG-20160128-WA0001_Original-M4UCvUmwP9swcc0izOWZxg.JPG',
+        texto:'El 15 de febrero de 2025 nuestra Corporación cumplió setenta años desde su fundación, en 1955, en el Santuario de la Inmaculada Concepción.\n\nLa efeméride se conmemoró con una solemne función de acción de gracias y una convivencia de hermanos.\n\nSetenta años de fe, tradición y caridad.' },
+    ];
+  }
+
+  // Siembra silenciosa al arrancar con la tabla vacía
+  async sembrarNoticias() {
+    try {
+      for (const n of this.noticiasDeArranque()) {
+        await window.API.guardarNoticia(null, { ...n, estado:'Publicada' });
+      }
+    } catch (e) {
+      console.error('[Amargura] No se han podido cargar las noticias iniciales', e);
+    }
+    return this.cargarTodo();
+  }
+
+  importarNoticias() {
+    const base = this.noticiasDeArranque();
+    if (!this.conectado) {
+      this.setState({ noticias: base.map(n => ({ ...n, img:n.imagen_url, estado:'Publicada' })) });
+      return;
+    }
+    this.sync(async () => {
+      for (const n of base) {
+        await window.API.guardarNoticia(null, { ...n, estado:'Publicada' });
+      }
+    });
+  }
+
   // ---- Borrado en dos pasos: la ✕ solo marca; hay que confirmar o revertir ----
   marcarBorrado(tipo, i) { this.setState({ porBorrar: { tipo, i } }); }
   revertirBorrado() { this.setState({ porBorrar: null }); }
@@ -1705,6 +1761,13 @@ class Component extends DCLogic {
         } catch (e) {}
       }
 
+      // Si la tabla de noticias está vacía, se siembran solas la primera vez
+      if (noticias && noticias.length === 0 && !this._sembrado && this.state.view === 'admin') {
+        this._sembrado = true;
+        this.setState({ cargando:false });
+        return this.sembrarNoticias();
+      }
+
       nuevo.errorCarga = fallos.length ? ('⚠ ' + fallos.join(' · ')) : '';
       this.setState(nuevo);
     } catch (e) {
@@ -2051,6 +2114,8 @@ class Component extends DCLogic {
         onToggle: () => this.toggleEstadoNoticia(i),
         ...this.borrable('noticias', i),
       })),
+      sinNoticias: this.state.noticias.length === 0,
+      importarNoticias: () => this.importarNoticias(),
       noticiaFormTitulo: this.state.noticiaEdit != null ? 'Editar noticia' : 'Nueva noticia',
       noticiaBtnLabel: this.state.noticiaEdit != null ? 'Guardar cambios' : 'Publicar noticia',
       addCulto: () => this.addCulto(),
